@@ -56,7 +56,7 @@ void main ()
   highp vec4 base_color_data_17;
   highp float mask_18;
   mediump vec4 tmpvar_19;
-  tmpvar_19 = texture (sBaseSampler, xlv_TEXCOORD0.xy, cBaseMapBias);
+  tmpvar_19 = texture (sBaseSampler, xlv_TEXCOORD0.xy, cBaseMapBias);//col
   BaseColor_10 = (tmpvar_19.xyz * tmpvar_19.xyz);
   Alpha_14 = tmpvar_19.w;
   mask_18 = Alpha_14;
@@ -67,7 +67,7 @@ void main ()
   highp vec3 tmpvar_21;
   tmpvar_21.x = dot (cColorTransform0, base_color_data_17);
   tmpvar_21.y = dot (cColorTransform1, base_color_data_17);
-  tmpvar_21.z = dot (cColorTransform2, base_color_data_17);
+  tmpvar_21.z = dot (cColorTransform2, base_color_data_17);// BaseColor
   highp vec3 tmpvar_22;
   tmpvar_22 = ((BaseColor_10 * (1.0 - mask_18)) + (clamp (tmpvar_21, 0.0, 1.0) * mask_18));
   BaseColor_10 = tmpvar_22;
@@ -75,14 +75,14 @@ void main ()
   mediump vec4 tmpvar_23;
   tmpvar_23 = texture (sNormalSampler, xlv_TEXCOORD0.xy, cNormalMapBias);
   tangentNormal_16.zw = tmpvar_23.zw;
-  SSSmask_15 = (1.0 - tmpvar_23.w);
+  SSSmask_15 = (1.0 - tmpvar_23.w);//SSSMask
   mediump float tmpvar_24;
   mediump float rain_25;
   rain_25 = EnvInfo.x;
   highp float tmpvar_26;
   tmpvar_26 = clamp (((xlv_TEXCOORD2.y * 0.7) + (0.4 * rain_25)), 0.0, 1.0);
-  rain_25 = (1.0 - (rain_25 * tmpvar_26));
-  tmpvar_24 = (rain_25 - (rain_25 * tmpvar_23.z));
+  rain_25 = (1.0 - (rain_25 * tmpvar_26)); // Rain
+  tmpvar_24 = (rain_25 - (rain_25 * tmpvar_23.z));//normalBias
   tangentNormal_16.xy = ((tmpvar_23.xy * 2.0) - 1.0);
   tangentNormal_16.xy = (tangentNormal_16.xy * cParamter.w);
   mediump float tmpvar_27;
@@ -94,23 +94,23 @@ void main ()
   N_12 = (((xlv_TEXCOORD4 * tangentNormal_16.x) + (xlv_TEXCOORD5 * tangentNormal_16.y)) + (xlv_TEXCOORD2.xyz * tmpvar_27));
   highp vec3 tmpvar_28;
   tmpvar_28 = normalize(N_12);
-  N_12 = tmpvar_28;
+  N_12 = tmpvar_28;//normalVec
   highp vec3 tmpvar_29;
   tmpvar_29.x = dot (cColorTransform3, base_color_data_17);
   tmpvar_29.y = dot (cColorTransform4, base_color_data_17);
-  tmpvar_29.z = dot (cColorTransform5, base_color_data_17);
+  tmpvar_29.z = dot (cColorTransform5, base_color_data_17); // BaseColor
   highp vec3 tmpvar_30;
   tmpvar_30 = ((BaseColor_10 * (1.0 - SSSmask_15)) + (clamp (tmpvar_29, 0.0, 1.0) * SSSmask_15));
-  BaseColor_10 = tmpvar_30;
+  BaseColor_10 = tmpvar_30; // // BaseColor
   GILighting_13.xyz = vec3(0.0, 0.0, 0.0);
   GILighting_13.w = tmpvar_23.w;
   OUT_9.w = Alpha_14;
   highp vec2 tmpvar_31;
   tmpvar_31 = texture (sSecondShadowSampler, (gl_FragCoord.xy * ScreenInfoPS.zw)).xy;
   shadow_and_ao_7 = tmpvar_31;
-  shadow_8 = (1.0 - shadow_and_ao_7.x);
+  shadow_8 = (1.0 - shadow_and_ao_7.x);//Runtime Scene Shadow
   highp vec3 tmpvar_32;
-  tmpvar_32 = (xlv_TEXCOORD6.xyz / xlv_TEXCOORD6.w);
+  tmpvar_32 = (xlv_TEXCOORD6.xyz / xlv_TEXCOORD6.w);//light space position
   highp vec2 tmpvar_33;
   tmpvar_33 = vec2(lessThan (abs(
     (tmpvar_32.xy - 0.5)
@@ -129,8 +129,8 @@ void main ()
   tmpvar_36 = ((tmpvar_34.xz * (1.0 - tmpvar_35.x)) + (tmpvar_34.yw * tmpvar_35.x));
   shadow2_6 = ((tmpvar_36.x * (1.0 - tmpvar_35.y)) + (tmpvar_36.y * tmpvar_35.y));
   shadow2_6 = (shadow2_6 * inRange_5.x);
-  shadow2_6 = (1.0 - shadow2_6);
-  shadow_8 = min (shadow_8, shadow2_6);
+  shadow2_6 = (1.0 - shadow2_6);//Runtime Character Shadow
+  shadow_8 = min (shadow_8, shadow2_6);// Final Shadow
   SpecularColor_2 = ((BaseColor_10 * Metallic_11) + 0.04);
   DiffuseColor_3 = ((BaseColor_10 - (BaseColor_10 * Metallic_11)) / 3.141593);
   highp vec3 tmpvar_37;
