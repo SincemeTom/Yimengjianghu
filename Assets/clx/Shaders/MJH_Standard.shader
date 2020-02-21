@@ -10,6 +10,16 @@
         NormalMapBias("NormalMapBias", float) = -0.5
 
         Paramters("MJH_UnpackNormal", Vector) = (0,0,0,1)
+        LightmapScale("LightmapScale", Vector) = (0.92954, 0.01, 0, 0)
+        LightmapUVTransform("LightmapUVTransform", Vector) = (0.499023, 0.499023, 0.000488281, 0.000488281)
+        EnvInfo("Env Info", Vector) = (0,0.5,1,0.4)
+        EnvStrength("Env Strength", Range(0,1)) = 1
+
+        FogInfo("Fog Info", Vector) = (70,0.008,-0.003160504,0.3555721)
+
+        FogColor("FogInfo", Color) = (0.2590002, 0.3290003, 0.623, 1.102886) 
+        FogColor2("FogInfo2", Color) = (0,0,0,0.7713518)
+        FogColor3("FogInfo3", Color) = (0.5, 0.35, 0.09500044, 0.6937419 )
     }
     SubShader
     {
@@ -36,7 +46,7 @@
                 //float4 binormal : BINORMAL;
 
                 float2 texcoord0 : TEXCOORD0;
-                float2 texcoord1 : TEXCOORD0;
+                float2 texcoord1 : TEXCOORD1;
             };
 
 
@@ -64,7 +74,7 @@
 
 			//VS
 			float4 LightmapUVTransform; //0.499023, 0.499023, 0.000488281 0.000488281
-
+            float4 FogInfo;
 			//PS
 			float4 EnvInfo; // (0,0.5,1,0.4)
 			float4 SunColor; // (15, 11.32279, 6.843958, 0)
@@ -95,8 +105,9 @@
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv.xy = TRANSFORM_TEX(v.texcoord0.xy, _MainTex);
-
-                o.worldPos = mul( unity_ObjectToWorld, v.vertex );
+                o.uv.zw = v.texcoord1.xy * LightmapUVTransform .xy + LightmapUVTransform.zw;
+                float4 worldPos = mul( unity_ObjectToWorld, v.vertex );
+                o.worldPos = worldPos;
 				float3 normal  = v.normal;
 				half3 wNormal = UnityObjectToWorldNormal(normal);  
 				half3 wTangent = UnityObjectToWorldDir(v.tangent.xyz);
@@ -107,8 +118,16 @@
 				o.world_tangent.xyz = wTangent; 
 				o.world_binormal.xyz = wBinormal;
                 o.texcoord1.xyz =  normalize(UnityObjectToWorldNormal(normal));//world space normal,MeshConverter.HSMYJ (normal * 2 - 1)
-                o.texcoord1.w = 0;
-                UNITY_TRANSFER_FOG(o,o.vertex);
+                o.texcoord1.w = 0;//fog
+
+                float3 viewDir = normalize(UnityWorldSpaceViewDir(worldPos));
+				float fogTmp = clamp ((worldPos.y * FogInfo.z + FogInfo.w), 0.0, 1.0);
+				float fHeightCoef = fogTmp * fogTmp;
+				fHeightCoef*=fHeightCoef;
+				float fog = 1.0 - exp(-max (0.0, viewDir - FogInfo.x)* max (FogInfo.y * fHeightCoef, 0.1 * FogInfo.y));
+				fog *= fog;
+                o.texcoord1.w = fog;
+
                 return o;
             }
 
@@ -117,6 +136,16 @@
             {
                 return half4(normal.xy * 2.0 - 1.0, normal.zw);
             }
+            half3 EnvBRDFApprox( half3 SpecularColor, half Roughness, half NoV )
+            {
+                const half4 c0 = { -1, -0.0275, -0.572, 0.022 };
+                const half4 c1 = { 1, 0.0425, 1.04, -0.04 };
+                half4 r = Roughness * c0 + c1;
+                half a004 = min( r.x * r.x, exp2( -9.28 * NoV ) ) * r.x + r.y;
+                half2 AB = half2( -1.04, 1.04 ) * a004 + r.zw;
+                return SpecularColor * AB.x + AB.y;
+            }
+
             half4 frag (v2f i) : SV_Target
             {
                 // sample the texture
@@ -135,7 +164,7 @@
                 half raintmp = clamp(i.world_normal.y * 0.7 + 0.4 * rain, 0, 1);
                 rain = 1 - rain * raintmp;
 
-                float normalBias = rain - rain * Normalmap.z;
+                float roughness = rain - rain * Normalmap.z; // NormalMap .z save roughness
 
                 //Normal 
                 float4 tangentNormal = float4(0,0,0,0);
@@ -149,7 +178,7 @@
                 //BaseColor = BaseColor * (1.0 - SSSMask) + BaseColor * SSSMask; //BaseColor * (1.0 - SSSMask) + (BaseColor * M3x3(ColorTransform3,ColorTransform4,ColorTransform5)) * SSSMask;
                 
                 //Shadow:
-                //实时阴影贴图绘制，主角单独绘制在1024的RT上，每帧都绘制；场景的阴影绘制在一张2048精度的RT上，隔帧绘制，然后场景是ScreenSpaceShadow.
+                //实时阴影贴图绘制，主角单独绘制在1024的RT上，每帧都绘制；场景的阴影绘制在两张1024精度的RT上，隔帧绘制，ScreenSpaceShadow.
 
                 //Specular
                 float3 SpecularColor = BaseColor * Metallic + 0.04;
@@ -158,12 +187,79 @@
                 //Light & view
 				half3 lightDir = normalize(_WorldSpaceLightPos0.www*(-i.worldPos) + _WorldSpaceLightPos0.xyz);
 				half3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
+                half3 I = -viewDir;
+
+                half3 reflectDir = reflect(viewDir,normalVec);
+				half NdotV = clamp(dot(viewDir,normalVec),0,1);
                 half3 SunColor = _LightColor0.rgb;
                 half NdotL = dot(normalVec, lightDir);
 
+                half shadow = 1;/// Final Shadow
+                shadow = shadow * clamp(abs(NdotL) + 2.0 * Normalmap.w * Normalmap.w, 0.0, 1.0); // Normalmap.w AO
+                
+                //GI :还原YMJH内置bakeLighting
+                half4 GILighting = half4(0,0,0,Normalmap.w);
+                half4 LightMap = tex2D(_LightMap, i.uv.zw);
+                half4 lightMapRaw = half4(0,0,0,0);
+                lightMapRaw.xyz = LightMap.xyz * LightmapScale.x + LightmapScale.y;
+                lightMapRaw.w = LightMap.w;
+                half lightmapTmp0 = dot(lightMapRaw.xyz, half3(0.0955, 0.1878, 0.035)) + 7.5e-05;
+                half lightmapTmp1 =  exp2(lightmapTmp0 * 50.27 - 8.373);
+                shadow = shadow * LightMap.w * LightMap.w;
+
+                GILighting.w = Normalmap.w * clamp(lightmapTmp1, 0,1);
+                half3 bakeLighting = lightMapRaw.xyz * (Normalmap.w * lightmapTmp1 / lightmapTmp0) + SunColor.xyz * clamp(NdotL * shadow, 0.0, 1.0);
+
+                //Sun Specular
+                half3 ReflectColor = EnvBRDFApprox(SpecularColor, roughness, NdotV);
+
+                float3 Reflect = viewDir - 2.0 * dot(normalVec , viewDir) * normalVec;
+				half lod = roughness / 0.17;
+				half fSign = half(reflectDir.z > 0);
+				half temp =  fSign * 2.0 - 1.0;
+				half2 reflectuv = reflectDir.xy / (reflectDir.z * temp + 1.0);
+				reflectuv = reflectuv * half2(0.25, -0.25) + 0.25 + 0.5 * fSign;
+				
+				fixed4 srcColor = tex2Dlod (_EnvMap, half4(reflectuv.xy, 0, 0));
+
+                half3 EnvSpecular = srcColor.xyz * srcColor.w * srcColor.w * 16.0 * EnvStrength ;
+				EnvSpecular = EnvSpecular * GILighting.w * EnvInfo.w * 10.0;
+
+                fixed3 H = normalize(viewDir + lightDir);
+				fixed VdotH = clamp(dot(viewDir,H),0,1);
+				fixed NdotH = clamp(dot(normalVec,H),0,1);
+                float m = roughness * roughness + 0.0002;
+                float m2 = m *m;
+
+                float DTmp = (NdotH * m2 - NdotH) * NdotH + 1.0;
+                float D = DTmp * DTmp + 1e-06;
+                D = 0.25 * m2 / D;
+
+                float3 sunSpec = ReflectColor * D;
+                sunSpec = sunSpec * SunColor.xyz * clamp(NdotL * shadow, 0, 1);
+                float3 SpecColor = ReflectColor * EnvSpecular + sunSpec;                
+                float3 DiffColor = bakeLighting * DiffuseColor;
+                float3 OutColor = SpecColor + DiffColor;
+
+                //AO :PC平台下，AO绘制在Forward之前，场景ScreenSpaceShadow之后，存在ScreenSpaceShadow纹理Y通道中
+                float AO = 1.0;
+                float a = clamp(AO + shadow * 0.5, 0.0, 1.0);//Blend AO;
+                OutColor *= a;
+
                 // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
-                return half4(DiffuseColor.xyz * NdotL * SunColor, col.a);
+                float fog = i.texcoord1.w;
+                half3 fogColor = (FogColor2.xyz * clamp (viewDir.y * 5.0 + 1.0, 0.0, 1.0)) + FogColor.xyz;
+				half VdotL =  clamp (dot (-viewDir, lightDir), 0.0, 1.0);
+				fogColor =   fogColor + (FogColor3 * VdotL  * VdotL).xyz;
+
+                OutColor = OutColor * (1.0 - fog) + (OutColor.xyz * (1 - fog) + fogColor) * fog;
+				OutColor = OutColor * EnvInfo.z;
+                OutColor *= FogColor.w * FogColor2.w * FogColor3.w;
+
+                //Linear to Gamma
+				OutColor.xyz = OutColor.xyz / (OutColor.xyz * 0.9661836 + 0.180676);
+
+                return half4(shadow.xxx , col.a);
             }
             ENDCG
         }

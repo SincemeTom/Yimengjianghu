@@ -82,7 +82,7 @@ void main ()
   highp float tmpvar_26;
   tmpvar_26 = clamp (((xlv_TEXCOORD2.y * 0.7) + (0.4 * rain_25)), 0.0, 1.0);
   rain_25 = (1.0 - (rain_25 * tmpvar_26)); // Rain
-  tmpvar_24 = (rain_25 - (rain_25 * tmpvar_23.z));//normalBias
+  tmpvar_24 = (rain_25 - (rain_25 * tmpvar_23.z));//roughness
   tangentNormal_16.xy = ((tmpvar_23.xy * 2.0) - 1.0);
   tangentNormal_16.xy = (tangentNormal_16.xy * cParamter.w);
   mediump float tmpvar_27;
@@ -134,19 +134,19 @@ void main ()
   SpecularColor_2 = ((BaseColor_10 * Metallic_11) + 0.04);
   DiffuseColor_3 = ((BaseColor_10 - (BaseColor_10 * Metallic_11)) / 3.141593);
   highp vec3 tmpvar_37;
-  tmpvar_37 = normalize(-(xlv_TEXCOORD3.xyz));
+  tmpvar_37 = normalize(-(xlv_TEXCOORD3.xyz));//viewDir
   highp vec3 I_38;
   I_38 = -(tmpvar_37);
   R_1 = (I_38 - (2.0 * (
     dot (tmpvar_28, I_38)
    * tmpvar_28)));
   mediump float color_39;
-  color_39 = clamp (dot (tmpvar_28, tmpvar_37), 0.0, 1.0);
+  color_39 = clamp (dot (tmpvar_28, tmpvar_37), 0.0, 1.0);//NdotV
   mediump float color_40;
-  color_40 = dot (SunDirection.xyz, tmpvar_28);
+  color_40 = dot (SunDirection.xyz, tmpvar_28);//NdotL
   shadow_8 = (shadow_8 * clamp ((
     (abs(color_40) + ((2.0 * tmpvar_23.w) * tmpvar_23.w))
-   - 1.0), 0.0, 1.0));
+   - 1.0), 0.0, 1.0));//shadow * ao
   mediump vec4 GILighting_41;
   GILighting_41.xyz = GILighting_13.xyz;
   mediump float shadow_42;
@@ -161,7 +161,7 @@ void main ()
   mediump float tmpvar_47;
   tmpvar_47 = (dot (lightMapRaw_44.xyz, vec3(0.0955, 0.1878, 0.035)) + 7.5e-05);
   mediump float tmpvar_48;
-  tmpvar_48 = exp2(((tmpvar_47 * 50.27) - 8.737));
+  tmpvar_48 = exp2(((tmpvar_47 * 50.27) - 8.737));//lightmapColorTmp
   shadow_42 = (shadow_8 * (tmpvar_46.w * tmpvar_46.w));
   GILighting_41.w = (tmpvar_23.w * clamp (tmpvar_48, 0.0, 1.0));
   bakeLighting_43 = ((lightMapRaw_44 * (
@@ -175,7 +175,7 @@ void main ()
   mediump float m2_51;
   mediump vec3 Spec_52;
   mediump float tmpvar_53;
-  tmpvar_53 = ((tmpvar_24 * tmpvar_24) + 0.0002);
+  tmpvar_53 = ((tmpvar_24 * tmpvar_24) + 0.0002);//m
   m2_51 = (tmpvar_53 * tmpvar_53);
   mediump vec3 tmpvar_54;
   mediump vec4 tmpvar_55;
@@ -184,7 +184,7 @@ void main ()
   tmpvar_56 = ((vec2(-1.04, 1.04) * (
     (min ((tmpvar_55.x * tmpvar_55.x), exp2((-9.28 * color_39))) * tmpvar_55.x)
    + tmpvar_55.y)) + tmpvar_55.zw);
-  tmpvar_54 = ((SpecularColor_2 * tmpvar_56.x) + tmpvar_56.y);
+  tmpvar_54 = ((SpecularColor_2 * tmpvar_56.x) + tmpvar_56.y); // ReflectColor
   highp vec3 R_57;
   R_57.z = R_1.z;
   mediump float fSign_58;
@@ -197,13 +197,13 @@ void main ()
   R_57.xy = (R_1.xy / ((R_1.z * tmpvar_61) + 1.0));
   R_57.xy = ((R_57.xy * vec2(0.25, -0.25)) + (0.25 + (0.5 * fSign_58)));
   mediump vec4 tmpvar_62;
-  tmpvar_62 = textureLod (sEnvSampler, R_57.xy, (tmpvar_24 / 0.17));
+  tmpvar_62 = textureLod (sEnvSampler, R_57.xy, (tmpvar_24 / 0.17));//srcColor
   sampleEnvSpecular_59 = (tmpvar_62.xyz * ((tmpvar_62.w * tmpvar_62.w) * 16.0));
   sampleEnvSpecular_59 = (sampleEnvSpecular_59 * ((cEnvStrength * GILighting_41.w) * (EnvInfo.w * 10.0)));
   highp float tmpvar_63;
   tmpvar_63 = clamp (dot (tmpvar_28, normalize(
     (tmpvar_37 + SunDirection.xyz)
-  )), 0.0, 1.0);
+  )), 0.0, 1.0);//NdotH
   highp float tmpvar_64;
   tmpvar_64 = (((
     (tmpvar_63 * m2_51)
@@ -214,16 +214,16 @@ void main ()
   sunSpec_50 = (sunSpec_50 * (SunColor.xyz * clamp (
     (color_40 * shadow_42)
   , 0.0, 1.0)));
-  Spec_52 = ((tmpvar_54 * sampleEnvSpecular_59) + sunSpec_50);
+  Spec_52 = ((tmpvar_54 * sampleEnvSpecular_59) + sunSpec_50);//SpecColor
   SpecularColor_2 = tmpvar_54;
   OUT_9.xyz = Spec_52;
   OUT_9.xyz = OUT_9.xyz;
   OUT_9.xyz = (OUT_9.xyz + (bakeLighting_43 * DiffuseColor_3));
   mediump float tmpvar_65;
   tmpvar_65 = clamp ((shadow_and_ao_7.y + (shadow_42 * 0.5)), 0.0, 1.0);
-  OUT_9.xyz = (OUT_9.xyz * tmpvar_65);
+  OUT_9.xyz = (OUT_9.xyz * tmpvar_65);//Blend AO
   highp float tmpvar_66;
-  tmpvar_66 = clamp (dot (-(tmpvar_37), SunDirection.xyz), 0.0, 1.0);
+  tmpvar_66 = clamp (dot (-tmpvar_37, SunDirection.xyz), 0.0, 1.0);//LdotI
   highp float tmpvar_67;
   tmpvar_67 = (1.0 - xlv_TEXCOORD3.w);
   OUT_9.xyz = ((OUT_9.xyz * tmpvar_67) + ((
