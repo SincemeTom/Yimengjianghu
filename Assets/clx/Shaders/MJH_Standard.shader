@@ -5,12 +5,14 @@
         _MainTex ("Base Color", 2D) = "white" {}
 		_NormalMap("Normal", 2D) = "white" {}
 		_LightMap("Light map", 2D) = "white" {}
+		_EmissionMap("_Emission Map", 2D) = "black" {}
 		_EnvMap("Env map", 2D) = "white" {}
+
 
         NormalMapBias("NormalMapBias", float) = -0.5
 
         Paramters("MJH_UnpackNormal", Vector) = (0,0,0,1)
-        LightmapScale("LightmapScale", Vector) = (0.92954, 0.01, 0, 0)
+        LightmapScale("LightmapScale", Vector) = (0.92951, 0.01, 0, 0)
         LightmapUVTransform("LightmapUVTransform", Vector) = (0.499023, 0.499023, 0.000488281, 0.000488281)
         EnvInfo("Env Info", Vector) = (0,0.5,1,0.4)
         EnvStrength("Env Strength", Range(0,1)) = 1
@@ -70,7 +72,7 @@
 			sampler2D _EnvMap;
 			sampler2D _ShadowMap;
 			sampler2D _SecondShadow;
-
+			sampler2D _EmissionMap;
 
 			//VS
 			float4 LightmapUVTransform; //0.499023, 0.499023, 0.000488281 0.000488281
@@ -205,6 +207,7 @@
                 lightMapRaw.w = LightMap.w;
                 half lightmapTmp0 = dot(lightMapRaw.xyz, half3(0.0955, 0.1878, 0.035)) + 7.5e-05;
                 half lightmapTmp1 =  exp2(lightmapTmp0 * 50.27 - 8.373);
+				half runtimeShadow = shadow;
                 shadow = shadow * LightMap.w * LightMap.w;
 
                 GILighting.w = Normalmap.w * clamp(lightmapTmp1, 0,1);
@@ -241,6 +244,13 @@
                 float3 DiffColor = bakeLighting * DiffuseColor;
                 float3 OutColor = SpecColor + DiffColor;
 
+
+				// _EmissionMap
+				half3 EmissionMap =  tex2D(_EmissionMap, i.uv.xy).xyz;
+				half3 EmissionColor = EmissionMap * EmissionMap;
+
+				EmissionColor *= col.w;
+				OutColor += EmissionColor;
                 //AO :PC平台下，AO绘制在Forward之前，场景ScreenSpaceShadow之后，存在ScreenSpaceShadow纹理Y通道中
                 float AO = 1.0;
                 float a = clamp(AO + shadow * 0.5, 0.0, 1.0);//Blend AO;
@@ -256,10 +266,12 @@
 				OutColor = OutColor * EnvInfo.z;
                 OutColor *= FogColor.w * FogColor2.w * FogColor3.w;
 
+
                 //Linear to Gamma
 				OutColor.xyz = OutColor.xyz / (OutColor.xyz * 0.9661836 + 0.180676);
 
-                return half4(shadow.xxx , col.a);
+				
+                return half4(LightMap.www , col.a);
             }
             ENDCG
         }
