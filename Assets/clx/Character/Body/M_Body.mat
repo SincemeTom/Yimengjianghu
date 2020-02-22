@@ -7,9 +7,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: langan2_base.Miplevel.0
-  m_Shader: {fileID: 4800000, guid: 791223b15a668914880cfaad457a772c, type: 3}
-  m_ShaderKeywords: _NORMALMAP
+  m_Name: M_Body
+  m_Shader: {fileID: 4800000, guid: feaf2e543e4c3a94eb8deda244dba078, type: 3}
+  m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -20,7 +20,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: 558670e71d374094380680dcdf48da62, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -39,24 +39,20 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _EnvMap:
-        m_Texture: {fileID: 2800000, guid: f181b491e268cf24aa352d93191fed3f, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _LightMap:
-        m_Texture: {fileID: 2800000, guid: a8b8197865055c94ca7382811dec5a80, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 0128616743e00bc47a8340aad7e7c8ea, type: 3}
+        m_Texture: {fileID: 2800000, guid: f883769aed461b847ad6694d9ce05500, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: 558670e71d374094380680dcdf48da62, type: 3}
+    - _MixTex:
+        m_Texture: {fileID: 2800000, guid: acedd8fa95f860147bc7e4e515be55ab, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalTex:
+        m_Texture: {fileID: 2800000, guid: 3673e4e9e5124264caffbbb6437a379f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -67,15 +63,27 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _ReflectTex:
+        m_Texture: {fileID: 2800000, guid: f181b491e268cf24aa352d93191fed3f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SkinProfileTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
+    - AliasingFactor: 0.2
+    - BaseMapBias: -1
+    - Curvature: 0.5
     - EnvStrength: 1
+    - Metallic: 0
     - NormalMapBias: -0.5
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0.464
+    - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
@@ -86,14 +94,10 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
+    - sss_enable: 0
     m_Colors:
-    - EnvInfo: {r: 0, g: 0.5, b: 1, a: 0.4}
-    - FogColor: {r: 0.2590002, g: 0.3290003, b: 0.623, a: 1.102886}
-    - FogColor2: {r: 0, g: 0, b: 0, a: 0.7713518}
-    - FogColor3: {r: 0.5, g: 0.35, b: 0.09500044, a: 0.6937419}
-    - FogInfo: {r: 70, g: 0.008, b: -0.003160504, a: 0.3555721}
-    - LightmapScale: {r: 0.92954, g: 0.01, b: 0, a: 0}
-    - LightmapUVTransform: {r: 0.499023, g: 0.499023, b: 0.000488281, a: 0.000488281}
-    - Paramters: {r: 0, g: 0, b: 0, a: 1}
+    - EnvInfo: {r: 0, g: 100, b: 1, a: 0.3}
+    - Paramter: {r: 0, g: 0, b: 0, a: 1}
+    - ShadowColor: {r: 1, g: 1, b: 1, a: 0.5}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

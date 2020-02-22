@@ -197,21 +197,24 @@
                 half NdotL = dot(normalVec, lightDir);
 
                 half shadow = 1;/// Final Shadow
-                shadow = shadow * clamp(abs(NdotL) + 2.0 * Normalmap.w * Normalmap.w, 0.0, 1.0); // Normalmap.w AO
-                
+				half ao = Normalmap.w;
+
+                half microshadow = shadow * clamp(abs(NdotL) + 2.0 * ao * ao - 1, 0.0, 1.0); // Normalmap.w AO
+				shadow = microshadow;
+
                 //GI :还原YMJH内置bakeLighting
                 half4 GILighting = half4(0,0,0,Normalmap.w);
                 half4 LightMap = tex2D(_LightMap, i.uv.zw);
                 half4 lightMapRaw = half4(0,0,0,0);
                 lightMapRaw.xyz = LightMap.xyz * LightmapScale.x + LightmapScale.y;
                 lightMapRaw.w = LightMap.w;
-                half lightmapTmp0 = dot(lightMapRaw.xyz, half3(0.0955, 0.1878, 0.035)) + 7.5e-05;
-                half lightmapTmp1 =  exp2(lightmapTmp0 * 50.27 - 8.373);
+                half LogL = dot(lightMapRaw.xyz, half3(0.0955, 0.1878, 0.035)) + 7.5e-05;
+                half Luma =  exp2(LogL * 50.27 - 8.373);
 				half runtimeShadow = shadow;
                 shadow = shadow * LightMap.w * LightMap.w;
 
-                GILighting.w = Normalmap.w * clamp(lightmapTmp1, 0,1);
-                half3 bakeLighting = lightMapRaw.xyz * (Normalmap.w * lightmapTmp1 / lightmapTmp0) + SunColor.xyz * clamp(NdotL * shadow, 0.0, 1.0);
+                GILighting.w = Normalmap.w * clamp(Luma, 0,1);
+                half3 bakeLighting = lightMapRaw.xyz * (Normalmap.w * Luma / LogL) + SunColor.xyz * clamp(NdotL * shadow, 0.0, 1.0);
 
                 //Sun Specular
                 half3 ReflectColor = EnvBRDFApprox(SpecularColor, roughness, NdotV);
@@ -266,12 +269,11 @@
 				OutColor = OutColor * EnvInfo.z;
                 OutColor *= FogColor.w * FogColor2.w * FogColor3.w;
 
-
                 //Linear to Gamma
 				OutColor.xyz = OutColor.xyz / (OutColor.xyz * 0.9661836 + 0.180676);
 
 				
-                return half4(LightMap.www , col.a);
+                return half4(OutColor.xyz , col.a);
             }
             ENDCG
         }

@@ -161,7 +161,7 @@ void main ()
   mediump float tmpvar_47;
   tmpvar_47 = (dot (lightMapRaw_44.xyz, vec3(0.0955, 0.1878, 0.035)) + 7.5e-05);
   mediump float tmpvar_48;
-  tmpvar_48 = exp2(((tmpvar_47 * 50.27) - 8.737));//lightmapColorTmp
+  tmpvar_48 = exp2(((tmpvar_47 * 50.27) - 8.737));//Lum
   shadow_42 = (shadow_8 * (tmpvar_46.w * tmpvar_46.w));
   GILighting_41.w = (tmpvar_23.w * clamp (tmpvar_48, 0.0, 1.0));
   bakeLighting_43 = ((lightMapRaw_44 * (
