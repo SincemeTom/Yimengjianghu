@@ -87,7 +87,7 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - EnvInfo: {r: 0, g: 0.5, b: 1, a: 0.4}
+    - EnvInfo: {r: 0, g: 0.66, b: 1, a: 0.4}
     - FogColor: {r: 0.2590002, g: 0.3290003, b: 0.623, a: 1.102886}
     - FogColor2: {r: 0, g: 0, b: 0, a: 0.7713518}
     - FogColor3: {r: 0.5, g: 0.35, b: 0.09500044, a: 0.6937419}

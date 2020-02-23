@@ -8,8 +8,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_Body
-  m_Shader: {fileID: 4800000, guid: feaf2e543e4c3a94eb8deda244dba078, type: 3}
-  m_ShaderKeywords: 
+  m_Shader: {fileID: 4800000, guid: 48cfc6b5d71142544a1c30a787015552, type: 3}
+  m_ShaderKeywords: PointCloudEnable
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -39,8 +39,20 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _EnvMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _LightMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: f883769aed461b847ad6694d9ce05500, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: 2800000, guid: c1579f2a21a06684da1c5bd1bcc7d1ed, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -49,6 +61,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MixTex:
         m_Texture: {fileID: 2800000, guid: acedd8fa95f860147bc7e4e515be55ab, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalTex:
@@ -72,12 +88,13 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - AliasingFactor: 0.2
+    - AliasingFactor: 0
     - BaseMapBias: -1
     - Curvature: 0.5
     - EnvStrength: 1
     - Metallic: 0
     - NormalMapBias: -0.5
+    - PointCloudEnable: 1
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -94,10 +111,23 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
+    - cVirtualColorScale: 2.89
     - sss_enable: 0
     m_Colors:
-    - EnvInfo: {r: 0, g: 100, b: 1, a: 0.3}
+    - ColorBias: {r: -0.001, g: -0.001, b: 0, a: 0}
+    - ColorScale: {r: 0.89, g: 0.89, b: 0.89, a: 0}
+    - EnvInfo: {r: 0, g: 0.66, b: 1, a: 0.4}
+    - FogColor: {r: 0.2590002, g: 0.3290003, b: 0.623, a: 1.102886}
+    - FogColor2: {r: 0, g: 0, b: 0, a: 0.7713518}
+    - FogColor3: {r: 0.5, g: 0.35, b: 0.09500044, a: 0.6937419}
+    - FogInfo: {r: 70, g: 0.008, b: -0.003160504, a: 0.3555721}
+    - LightmapScale: {r: 0.92951, g: 0.01, b: 0, a: 0}
+    - LightmapUVTransform: {r: 0.499023, g: 0.499023, b: 0.000488281, a: 0.000488281}
     - Paramter: {r: 0, g: 0, b: 0, a: 1}
-    - ShadowColor: {r: 1, g: 1, b: 1, a: 0.5}
+    - Paramters: {r: 0, g: 0, b: 0, a: 1}
+    - ShadowColor: {r: 0.04736, g: 0.612, b: 0.006, a: 0.5}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - cEmissionScale: {r: 1, g: 1, b: 1, a: 1}
+    - cVirtualLitColor: {r: 1.913, g: 1.665, b: 2, a: 0}
+    - cVirtualLitDir: {r: 0, g: 0, b: 1, a: 0}

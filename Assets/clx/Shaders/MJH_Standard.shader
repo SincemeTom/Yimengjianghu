@@ -11,7 +11,7 @@
 
         NormalMapBias("NormalMapBias", float) = -0.5
 
-        Paramters("MJH_UnpackNormal", Vector) = (0,0,0,1)
+        Paramters("Paramters", Vector) = (0,0,0,1)
         LightmapScale("LightmapScale", Vector) = (0.92951, 0.01, 0, 0)
         LightmapUVTransform("LightmapUVTransform", Vector) = (0.499023, 0.499023, 0.000488281, 0.000488281)
         EnvInfo("Env Info", Vector) = (0,0.5,1,0.4)
@@ -92,11 +92,11 @@
 			float4 LightmapScale;// (0.92954, 0.01, 0, 0)
 			float BaseMapBias; // (-1)
 			float NormalMapBias;// (-0.5)
-			float4 ColorTransform0;// 
+			float4 ColorTransform0;// Mask Color Transform
 			float4 ColorTransform1;
 			float4 ColorTransform2;
 			float GrayPencent; // 1
-			float4 ColorTransform3;
+			float4 ColorTransform3;// SSSMask Color Transform
 			float4 ColorTransform4;
 			float4 ColorTransform5;
 
@@ -217,7 +217,7 @@
                 half3 bakeLighting = lightMapRaw.xyz * (Normalmap.w * Luma / LogL) + SunColor.xyz * clamp(NdotL * shadow, 0.0, 1.0);
 
                 //Sun Specular
-                half3 ReflectColor = EnvBRDFApprox(SpecularColor, roughness, NdotV);
+                half3 EnvBRDF = EnvBRDFApprox(SpecularColor, roughness, NdotV);
 
                 float3 Reflect = viewDir - 2.0 * dot(normalVec , viewDir) * normalVec;
 				half lod = roughness / 0.17;
@@ -241,9 +241,9 @@
                 float D = DTmp * DTmp + 1e-06;
                 D = 0.25 * m2 / D;
 
-                float3 sunSpec = ReflectColor * D;
+                float3 sunSpec = EnvBRDF * D;
                 sunSpec = sunSpec * SunColor.xyz * clamp(NdotL * shadow, 0, 1);
-                float3 SpecColor = ReflectColor * EnvSpecular + sunSpec;                
+                float3 SpecColor = EnvBRDF * EnvSpecular + sunSpec;                
                 float3 DiffColor = bakeLighting * DiffuseColor;
                 float3 OutColor = SpecColor + DiffColor;
 
