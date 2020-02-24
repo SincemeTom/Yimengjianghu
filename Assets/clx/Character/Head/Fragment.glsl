@@ -45,7 +45,7 @@ out highp vec4 SV_Target;
 void main ()
 {
   highp vec3 userData_1;
-  userData_1 = UserData[1].xyz;
+  userData_1 = UserData[1].xyz;//(0.3, 0.3, 1.1)
   highp vec4 OUT_2;
   mediump vec3 CrystalVirtualSpec_3;
   mediump vec3 CrystalSunSpec_4;
@@ -73,12 +73,12 @@ void main ()
   mediump vec4 tmpvar_26;
   tmpvar_26 = texture (sBaseSampler, xlv_TEXCOORD0.xy, cBaseMapBias);
   BaseColor_25 = tmpvar_26;
-  BaseColor_25.xyz = (BaseColor_25.xyz * BaseColor_25.xyz);
+  BaseColor_25.xyz = (BaseColor_25.xyz * BaseColor_25.xyz);//BaseColor
   mediump float Roughness_27;
-  Roughness_27 = max ((1.0 - BaseColor_25.w), 0.03);
+  Roughness_27 = max ((1.0 - BaseColor_25.w), 0.03);//Roughness
   mediump float rain_28;
   highp float tmpvar_29;
-  tmpvar_29 = (EnvInfo.x * 0.5);
+  tmpvar_29 = (EnvInfo.x * 0.5);//rain
   rain_28 = tmpvar_29;
   highp float tmpvar_30;
   tmpvar_30 = clamp (((
@@ -98,7 +98,7 @@ void main ()
   mediump vec4 color_34;
   color_34 = texture (sNormalSampler, xlv_TEXCOORD0.xy, cNormalMapBias);
   tangentNormal_19.w = color_34.w;
-  tangentNormal_19.xyz = ((color_34.xyz * 2.0) - 1.0);
+  tangentNormal_19.xyz = ((color_34.xyz * 2.0) - 1.0);//normalTex
   highp vec3 tmpvar_35;
   tmpvar_35 = normalize(((
     (normalize(xlv_TEXCOORD4) * tangentNormal_19.x)
@@ -106,7 +106,7 @@ void main ()
     (normalize(xlv_TEXCOORD5) * tangentNormal_19.y)
   ) + (
     normalize(xlv_TEXCOORD2.xyz)
-   * tangentNormal_19.z)));
+   * tangentNormal_19.z)));//normalVec
   mediump vec4 tmpvar_36;
   highp vec2 P_37;
   P_37 = (xlv_TEXCOORD0.xy * cDetailUVScale);
@@ -115,7 +115,7 @@ void main ()
   highp vec3 tmpvar_38;
   tmpvar_38.z = 0.0;
   tmpvar_38.x = ((DetailValue_18.z * 2.0) - 1.0);
-  tmpvar_38.y = ((DetailValue_18.w * 2.0) - 1.0);
+  tmpvar_38.y = ((DetailValue_18.w * 2.0) - 1.0);//detailValue
   highp vec3 tmpvar_39;
   tmpvar_39 = normalize((tangentNormal_19.xyz + (
     (tmpvar_38 * 0.2)
@@ -127,20 +127,20 @@ void main ()
     (xlv_TEXCOORD4 * tmpvar_39.x)
    + 
     (xlv_TEXCOORD5 * tmpvar_39.y)
-  ) + (xlv_TEXCOORD2.xyz * tmpvar_39.z)));
+  ) + (xlv_TEXCOORD2.xyz * tmpvar_39.z)));//detailNormalVec
   SpecularMask_21 = ((vec3(0.5, 0.5, 0.5) * (1.0 - color_34.w)) + (DetailValue_18.xxx * color_34.w));
   highp vec3 tmpvar_41;
-  tmpvar_41 = normalize(-(xlv_TEXCOORD3.xyz));
+  tmpvar_41 = normalize(-(xlv_TEXCOORD3.xyz));//viewDir
   highp vec3 I_42;
   I_42 = -(tmpvar_41);
   highp float tmpvar_43;
   tmpvar_43 = clamp (dot (tmpvar_35, tmpvar_41), 0.0, 1.0);
-  NoV_17 = tmpvar_43;
+  NoV_17 = tmpvar_43;//NdotV
   highp float tmpvar_44;
   tmpvar_44 = clamp (dot (tmpvar_35, SunDirection.xyz), 0.0, 1.0);
-  NoL_16 = tmpvar_44;
+  NoL_16 = tmpvar_44;//NdotL
   highp vec3 tmpvar_45;
-  tmpvar_45 = (xlv_TEXCOORD6.xyz / xlv_TEXCOORD6.w);
+  tmpvar_45 = (xlv_TEXCOORD6.xyz / xlv_TEXCOORD6.w);//Light space Pos
   highp float tmpvar_46;
   tmpvar_46 = min (0.99999, tmpvar_45.z);
   highp vec2 tmpvar_47;
@@ -294,7 +294,7 @@ void main ()
   inShadow_48 = (1.0 - inShadow_48);
   shadow_15 = inShadow_48;
   shadow_15 = (shadow_15 * inRange_14.x);
-  shadow_15 = (1.0 - shadow_15);
+  shadow_15 = (1.0 - shadow_15);//shadow
   SunIrradiance_13 = (((SunColor.xyz * userData_1.x) * (2.0 * ShadowColor.y)) * cPointCloud[0].w);
   highp vec3 tmpvar_87;
   tmpvar_87.x = ((MixTex_23.z * (1.0 - MixTex_23.x)) + (1.5 * MixTex_23.x));
@@ -318,9 +318,9 @@ void main ()
   tmpvar_93 = vec3((ShadowColor.x * (10.0 + (
     (cPointCloud[3].w * ShadowColor.z)
    * 100.0))));
-  linearColor_88.xyz = (linearColor_88.xyz * tmpvar_93);
+  linearColor_88.xyz = (linearColor_88.xyz * tmpvar_93);//linearColor
   highp vec3 tmpvar_94;
-  tmpvar_94 = ((linearColor_88.xyz * ScatterAO_12) * (userData_1.y * 2.0));
+  tmpvar_94 = ((linearColor_88.xyz * ScatterAO_12) * (userData_1.y * 2.0));//giLight
   highp vec3 tmpvar_95;
   tmpvar_95 = normalize(cVirtualLitDir.xyz);
   highp vec3 tmpvar_96;
@@ -330,29 +330,29 @@ void main ()
      + 
       (tmpvar_35 * MixTex_23.x)
     )), tmpvar_95), 0.0, 1.0)
-  ))));
+  ))));//virtualLight
   highp float tmpvar_97;
-  tmpvar_97 = clamp ((0.6 + dot (tmpvar_35, SunDirection.xyz)), 0.0, 1.0);
+  tmpvar_97 = clamp ((0.6 + dot (tmpvar_35, SunDirection.xyz)), 0.0, 1.0);//NdotLFront
   highp vec2 tmpvar_98;
   tmpvar_98.x = ((0.5 * dot (tmpvar_35, SunDirection.xyz)) + 0.5);
   tmpvar_98.y = (cSSSIntensity * MixTex_23.y);
   mediump vec3 tmpvar_99;
-  tmpvar_99 = texture (sLutMapSampler, tmpvar_98).xyz;
+  tmpvar_99 = texture (sLutMapSampler, tmpvar_98).xyz;//LutMap
   SSS_Lut1_11 = tmpvar_99;
   SSS_Lut1_11 = (SSS_Lut1_11 * SSS_Lut1_11);
   highp float tmpvar_100;
   tmpvar_100 = (shadow_15 + ((
     clamp (dot (tmpvar_40, SunDirection.xyz), 0.0, 1.0)
-   - NoL_16) * shadow_15));
+   - NoL_16) * shadow_15));//virtualshadow
   highp vec3 tmpvar_101;
   highp float tmpvar_102;
   tmpvar_102 = (1.0 - cSSSIntensity);
   tmpvar_101.x = ((sqrt(tmpvar_100) * (1.0 - tmpvar_102)) + (tmpvar_100 * tmpvar_102));
-  tmpvar_101.yz = vec2(tmpvar_100);
+  tmpvar_101.yz = vec2(tmpvar_100);//SSSLight
   highp float tmpvar_103;
-  tmpvar_103 = (Roughness_24 * RoughnessOffset2);
+  tmpvar_103 = (Roughness_24 * RoughnessOffset2);//roughnessOffset
   highp float tmpvar_104;
-  tmpvar_104 = ((SunIrradiance_13 * NoL_16) * ((2.0 * SpecularMask_21) * shadow_15)).x;
+  tmpvar_104 = ((SunIrradiance_13 * NoL_16) * ((2.0 * SpecularMask_21) * shadow_15)).x;//SunLight
   highp float d_105;
   highp float m2_106;
   highp float m_107;
@@ -472,10 +472,10 @@ void main ()
     ((MixTex_23.z * MixTex_23.z) * dot (tmpvar_94, vec3(0.3, 0.59, 0.11)))
   )));
   highp vec3 tmpvar_136;
-  tmpvar_136 = texture (sCrystalMaskMapSampler, xlv_TEXCOORD0.xy).xyz;
+  tmpvar_136 = texture (sCrystalMaskMapSampler, xlv_TEXCOORD0.xy).xyz;//crystamMaskMap
   crystalMaskMap_8 = tmpvar_136;
   highp vec4 tmpvar_137;
-  tmpvar_137 = texture (sCrystalMap03Sampler, ((5.0 * cCrystalUVTile03) * xlv_TEXCOORD0.xy));
+  tmpvar_137 = texture (sCrystalMap03Sampler, ((5.0 * cCrystalUVTile03) * xlv_TEXCOORD0.xy));//crystalMap
   crystalMap03_7 = tmpvar_137.xyz;
   highp vec3 tmpvar_138;
   tmpvar_138 = (((crystalMaskMap_8.z * cCrystalIntensity03) * cCrystalColor03) * crystalMap03_7);
@@ -487,24 +487,24 @@ void main ()
   highp float m2_142;
   highp float m_143;
   highp vec3 tmpvar_144;
-  tmpvar_144 = normalize((SunDirection.xyz + tmpvar_41));
+  tmpvar_144 = normalize((SunDirection.xyz + tmpvar_41));//H
   highp float tmpvar_145;
-  tmpvar_145 = clamp (dot (tmpvar_40, tmpvar_144), 0.0, 1.0);
+  tmpvar_145 = clamp (dot (tmpvar_40, tmpvar_144), 0.0, 1.0);//DetailNdotH
   highp float tmpvar_146;
-  tmpvar_146 = clamp (dot (tmpvar_41, tmpvar_144), 0.0, 1.0);
+  tmpvar_146 = clamp (dot (tmpvar_41, tmpvar_144), 0.0, 1.0);//VdotH
   highp float tmpvar_147;
-  tmpvar_147 = (cCrystalRange * cCrystalRange);
+  tmpvar_147 = (cCrystalRange * cCrystalRange);//crystalRange
   highp float tmpvar_148;
-  tmpvar_148 = (tmpvar_147 * tmpvar_147);
+  tmpvar_148 = (tmpvar_147 * tmpvar_147);//crystalRange2
   highp float tmpvar_149;
   tmpvar_149 = (((
     (tmpvar_145 * tmpvar_148)
-   - tmpvar_145) * tmpvar_145) + 1.0);
-  m_143 = (tmpvar_147 * 0.5);
+   - tmpvar_145) * tmpvar_145) + 1.0);//d1
+  m_143 = (tmpvar_147 * 0.5);//m
   m2_142 = (m_143 * m_143);
   d_141 = (((
     (tmpvar_145 * m2_142)
-   - tmpvar_145) * tmpvar_145) + 1.0);
+   - tmpvar_145) * tmpvar_145) + 1.0);//d2
   highp float tmpvar_150;
   tmpvar_150 = (m_143 * 0.5);
   CrystalSpecBRDF_140 = (((
@@ -520,7 +520,7 @@ void main ()
    * 
     ((clamp (dot (tmpvar_40, SunDirection.xyz), 0.0, 1.0) * (1.0 - tmpvar_150)) + tmpvar_150)
   )));
-  CrystalSpecBRDF_5 = CrystalSpecBRDF_140;
+  CrystalSpecBRDF_5 = CrystalSpecBRDF_140;//CrystalSpecBRDF
   highp vec3 tmpvar_151;
   tmpvar_151 = ((tmpvar_104 * CrystalSpecBRDF_5) * MixTex_23.z);
   CrystalSunSpec_4 = tmpvar_151;

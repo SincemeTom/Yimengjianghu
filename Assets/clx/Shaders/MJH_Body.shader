@@ -153,6 +153,18 @@
 			fixed4 frag (v2f i) : SV_Target
 			{
 				
+				
+				float4 cPointCloudm[6] = 
+				{
+					float4 (0.4153285,	0.3727325,	0.3066995,	1),
+					float4 (0.6216756,	0.6451226,	0.6716674,	1),
+					float4 (0.5540166,	0.7015119,	0.8980855,	1),
+					float4 (0.3778813,	0.2398499,	0.05358088,	1),
+					float4 (0.3423186,	0.4456023,	0.4700097,	1),
+					float4 (0.6410592,	0.5083932,	0.4235953,	1)
+				};
+				
+				/*
 				float4 cPointCloudm[6] = 
 				{
 					float4 (0.1408782,	0.3330483,	0.577573,	0.9036196),
@@ -162,7 +174,7 @@
 					float4 (0.1901786,	0.3295815,	0.6168326,	0.9036196),
 					float4 (0.1106259,	0.1672236,	0.3718346,	0.9036196)
 				};
-
+*/
 				// sample the texture
 				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));
 				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv, 0, NormalMapBias));
@@ -206,7 +218,9 @@
 				fixed3 isNegative = fixed3(lessThan(normalVec, fixed3(0.0,0.0,0.0))) ;
 
 				linearColor += nSquared.x * cPointCloudm[isNegative.x] + nSquared.y * cPointCloudm[isNegative.y + 2] + nSquared.z * cPointCloudm[isNegative.z + 4];
+
 				linearColor.xyz = max(half3(0.9,0.9,0.9),linearColor);
+
 				half3 shadowColorTmp = ShadowColor.x * (10.0 + cPointCloudm[3].w * ShadowColor.z * 100);
 				linearColor.xyz = shadowColorTmp * linearColor;
 
@@ -311,7 +325,8 @@
 				sunSpec = sunSpec * SunColor.xyz * clamp (NdotL * shadow, 0.0, 1.0);
 
 				half3 Spec = EnvBRDF * EnvSpecular + sunSpec;
-
+//return half4(sunSpec, 1);
+				//Virtual Light
 				half3 norVirtualLitDir = normalize(cVirtualLitDir.xyz);
 				float ndotlVir = clamp (dot (norVirtualLitDir, normalVec), 0.0, 1.0);
 				float3 virtualLit = cVirtualLitColor.xyz * cEmissionScale.w * ndotlVir;
@@ -325,6 +340,7 @@
 				float D_Vir = 0.25 * aVir2 / abVir;
 				half3 VirtualSpec = virtualLit * EnvBRDF * D_Vir;
 
+				//Apply Fog
 				float temp31 = clamp ((i.worldPos.y * FogInfo.z + FogInfo.w), 0.0, 1.0);
 				float fHeightCoef = temp31*temp31;
 				fHeightCoef*=fHeightCoef;
@@ -332,13 +348,12 @@
 				fog *= fog;
 				
 
+
 				half3 fogColor = (FogColor2.xyz * clamp (viewDir.y * 5.0 + 1.0, 0.0, 1.0)) + FogColor.xyz;
 				half VdotL =  clamp (dot (-viewDir, lightDir), 0.0, 1.0);
 				fogColor =   fogColor + (FogColor3 * VdotL  * VdotL).xyz;
 				
-
 				float3 Color = Spec + VirtualSpec + diffLighting * DiffuseColor;
-
 				Color = Color * (1.0 - fog) + (Color.xyz * fog + fogColor) * fog;
 				Color = Color* EnvInfo.z;
 				Color =  clamp (Color.xyz, float3(0.0, 0.0, 0.0), float3(4.0, 4.0, 4.0));

@@ -7,9 +7,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: diban_base.Miplevel.0
-  m_Shader: {fileID: 4800000, guid: 791223b15a668914880cfaad457a772c, type: 3}
-  m_ShaderKeywords: _LightMapEnable _NORMALMAP _NormalMapEnable
+  m_Name: M_StandardTest
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -20,7 +20,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: 7b96a8a3c7a43bf4780cdfd7e268c639, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -39,24 +39,12 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _EnvMap:
-        m_Texture: {fileID: 2800000, guid: f181b491e268cf24aa352d93191fed3f, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _LightMap:
-        m_Texture: {fileID: 2800000, guid: a8b8197865055c94ca7382811dec5a80, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 834cffe7d21400d448888910accf12b9, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: 7b96a8a3c7a43bf4780cdfd7e268c639, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -68,19 +56,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - EnvStrength: 1
-    - NormalMapBias: -0.5
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0.5
+    - _Glossiness: 0.9
     - _GlossyReflections: 1
-    - _LightMapEnable: 1
-    - _Metallic: 0
+    - _Metallic: 0.9
     - _Mode: 0
-    - _NormalMapEnable: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
@@ -89,13 +73,5 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - EnvInfo: {r: 0.7, g: 0.66, b: 1, a: 0.4}
-    - FogColor: {r: 0.2590002, g: 0.3290003, b: 0.623, a: 1.102886}
-    - FogColor2: {r: 0, g: 0, b: 0, a: 0.7713518}
-    - FogColor3: {r: 0.5, g: 0.35, b: 0.09500044, a: 0.6937419}
-    - FogInfo: {r: 70, g: 0.008, b: -0.003160504, a: 0.3555721}
-    - LightmapScale: {r: 0.92954, g: 0.01, b: 0, a: 0}
-    - LightmapUVTransform: {r: 0.499023, g: 0.499023, b: 0.000488281, a: 0.000488281}
-    - Paramters: {r: 0, g: 0, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
