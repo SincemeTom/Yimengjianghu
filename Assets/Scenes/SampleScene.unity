@@ -1346,31 +1346,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7efc569eff63dff4599903bc17e875a8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.00085029536
+      value: 0.00072878797
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7efc569eff63dff4599903bc17e875a8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.00079037354
+      value: 0.00021079382
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7efc569eff63dff4599903bc17e875a8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.0045211795
+      value: -0.0020999312
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7efc569eff63dff4599903bc17e875a8, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.13366184
+      value: 0.061252005
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7efc569eff63dff4599903bc17e875a8, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.024842495
+      value: -0.025020473
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7efc569eff63dff4599903bc17e875a8, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.0033516302
+      value: 0.0015359207
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7efc569eff63dff4599903bc17e875a8, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9907099
+      value: 0.99780756
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7efc569eff63dff4599903bc17e875a8, type: 3}
       propertyPath: m_RootOrder
@@ -1378,7 +1378,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7efc569eff63dff4599903bc17e875a8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 15.367001
+      value: 7.0260005
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7efc569eff63dff4599903bc17e875a8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y

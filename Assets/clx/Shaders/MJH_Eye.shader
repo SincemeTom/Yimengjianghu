@@ -92,12 +92,15 @@
 				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));
 				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv, 0, NormalMapBias));
                 half4 unpackNormal = MJH_UnpackNormal(texN);
-				half texMask = tex2D(_MaskMap, i.uv);
-				half mask = texMask.x;
+				half4 texMask = tex2D(_MaskMap, i.uv);
+				half3 refMask = texMask.xyz;
+
+				half mask = refMask.b;
 				fixed4 texM = tex2D (_MixTex, i.uv);
 
 				//Color 
                 half SSSMask = 1 - unpackNormal.w;
+
 				half3 BaseColor = texBase.rgb * texBase.rgb;
 				half3 baseColorData = BaseColor;
 				half3 scaleBaseColor = baseColorData * ColorScale.xyz;//Color Transform0,1,2
@@ -105,6 +108,8 @@
 				half3 biasColor = baseColorData + ColorBias.xyz;//Color Transform 3,4,5
 				BaseColor = BaseColor * (1 - SSSMask) + clamp(biasColor, 0, 1) * SSSMask;
 
+				float3 SpecularColor=float3(0.04,0.04,0.04);
+				return half4(BaseColor.xyz,1);
 				//Normal
 				half3 normalTex = half3(texN.rgb * 2.0 - 1.0);
 				half3 normalVec = i.world_tangent * normalTex.x + i.world_binormal * normalTex.y + i.world_normal * normalTex.z;
@@ -176,8 +181,9 @@
 
 
 				half metalic = texM.y;//MixMap .y metalic
-				half3 SpecularColor = lerp(0.04,BaseColor,metalic);
-  				half3 DiffuseColor = (BaseColor - BaseColor * metalic) / 3.141593;
+				//half3 SpecularColor = lerp(0.04,BaseColor,metalic);
+				half3 DiffuseColor = BaseColor / 3.141593;
+  				//half3 DiffuseColor = (BaseColor - BaseColor * metalic) / 3.141593;
 
 				half3 reflectDir = reflect(-viewDir,normalVec);
 				fixed NdotV = clamp(dot(viewDir,normalVec),0,1);
