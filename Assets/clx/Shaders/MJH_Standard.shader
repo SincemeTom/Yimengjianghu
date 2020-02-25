@@ -2,11 +2,16 @@
 {
     Properties
     {
-        _MainTex ("Base Color", 2D) = "white" {}
+        _BaseColor("Base Color", Color) = (1,1,1,1)
+        _Metallic("Metallic", Range(0,1)) = 0
+        _Roughness("Roughness", Range(0,1)) = 1
+        _AO("Ambient Occulusion", Range(0,1)) = 1
+        [Toggle (_BaseColorMapEnable)] _BaseColorMapEnable("BaseColorMap Enable",float) = 1       
+        _MainTex ("Base Color, w channel (0.5 - 1.0) save Metallic", 2D) = "white" {}
         [Toggle (_NormalMapEnable)] _NormalMapEnable("NormalMap Enable",float) = 1
-		_NormalMap("Normal", 2D) = "black" {}
+		_NormalMap("Normal, z for roughtness,w for ao", 2D) = "black" {}
         [Toggle (_LightMapEnable)] _LightMapEnable("LightMap Enable",float) = 1
-		_LightMap("Light map", 2D) = "black" {}
+		_LightMap("Light map", 2D) = "black"{}
 		_EmissionMap("_Emission Map", 2D) = "black" {}
 		_EnvMap("Env map", 2D) = "black" {}
 
@@ -34,10 +39,12 @@
         {
             Tags { "LIGHTMODE"="ForwardBase"}
             CGPROGRAM
+            #pragma multi_compile_fwdbase
             #pragma vertex vert
             #pragma fragment frag
             // make fog work
             #pragma multi_compile_fog
+            #pragma multi_compile __ _BaseColorMapEnable
             #pragma multi_compile __ _NormalMapEnable
             #pragma multi_compile __ _LightMapEnable
 
@@ -58,6 +65,7 @@
 
             struct v2f
             {
+                float4 pos : SV_POSITION;
                 float4 uv : TEXCOORD0; //(uv.xy ,ux,zw)
 				float4 worldPos   : TEXCOORD1;
 				half4 world_normal  : TEXCOORD2;
@@ -65,8 +73,12 @@
 				half4 world_binormal : TEXCOORD4;
 
 				half4 texcoord1 : TEXCOORD5;//EnvInfo
+                LIGHTING_COORDS(6,7)
+                #if defined(LIGHTMAP_ON)|| defined(UNITY_SHOULD_SAMPLE_SH)
+                    float4 ambientOrLightmapUV : TEXCOORD8;
+                #endif
 
-                float4 vertex : SV_POSITION;
+
             };
 
             sampler2D _MainTex;
@@ -77,7 +89,10 @@
 			sampler2D _ShadowMap;
 			sampler2D _SecondShadow;
 			sampler2D _EmissionMap;
-
+            float _Roughness;
+            float _Metallic;
+            float _AO;
+            float4 _BaseColor;
 			//VS
 			float4 LightmapUVTransform; //0.499023, 0.499023, 0.000488281 0.000488281
             float4 FogInfo;
@@ -109,7 +124,7 @@
             v2f vert (appdata v)
             {
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.pos = UnityObjectToClipPos(v.vertex);
                 o.uv.xy = TRANSFORM_TEX(v.texcoord0.xy, _MainTex);
                 o.uv.zw = v.texcoord1.xy * LightmapUVTransform .xy + LightmapUVTransform.zw;
                 float4 worldPos = mul( unity_ObjectToWorld, v.vertex );
@@ -134,6 +149,8 @@
 				fog *= fog;
                 o.texcoord1.w = fog;
 
+                TRANSFER_VERTEX_TO_FRAGMENT(o);
+
                 return o;
             }
 
@@ -156,24 +173,43 @@
             {
                 // sample the texture
                 half4 col = tex2Dbias(_MainTex, float4(i.uv.xy, 0, BaseMapBias));
-                half3 BaseColor = col.xyz * col.xyz;
+            
+
+
+            #ifdef _BaseColorMapEnable
+                half3 BaseColor = col.xyz * col.xyz * _BaseColor.xyz * _BaseColor.xyz;
+                half Metallic = clamp(col.w * 2.0 - 1, 0, 1) * _Metallic;// BaseColor w channel (0.5 - 1.0) save Metallic
                 half mask = col.w;
-                half Metallic = clamp(col.w * 2.0 - 1, 0, 1);// BaseColor w channel (0.5 - 1.0) save Metallic
-            #ifdef _NormalMapEnable
-                half4 Normalmap = tex2Dbias(_NormalMap, float4(i.uv.xy, 0, NormalMapBias));
             #else
-                half4 Normalmap = half4(0,0,1,1);
+                half Metallic = _Metallic;
+                half3 BaseColor = _BaseColor.xyz * _BaseColor.xyz;
+                half mask = 1;
             #endif
-                half4 unpackNormal = MJH_UnpackNormal(Normalmap);
 
-                half SSSMask = 1 - Normalmap.w;
 
-                //Rain
+
+
+                 //Rain
                 half rain = EnvInfo.x;
                 half raintmp = clamp(i.world_normal.y * 0.7 + 0.4 * rain, 0, 1);
                 rain = 1 - rain * raintmp;
 
-                float roughness = rain - rain * Normalmap.z; // NormalMap .z save roughness
+            #ifdef _NormalMapEnable
+                half4 Normalmap = tex2Dbias(_NormalMap, float4(i.uv.xy, 0, NormalMapBias));
+                half4 unpackNormal = MJH_UnpackNormal(Normalmap);
+                float roughness = (rain - rain * Normalmap.z) * _Roughness; // NormalMap .z save roughness
+                half SSSMask = 1 - Normalmap.w;
+                half AO = _AO * Normalmap.w;
+            #else
+                half4 Normalmap = half4(0,0,1,1);
+                half4 unpackNormal = half4(0,0,1,1);
+                float roughness = _Roughness;
+                 half SSSMask = 0;
+                 half AO = _AO;
+            #endif
+
+
+               
 
                 //Normal 
                 float4 tangentNormal = float4(0,0,0,0);
@@ -188,6 +224,9 @@
                 
                 //Shadow:
                 //实时阴影贴图绘制，主角单独绘制在1024的RT上，每帧都绘制；场景的阴影绘制在两张1024精度的RT上，隔帧绘制，ScreenSpaceShadow.
+                half shadow = 1;
+                float atten = LIGHT_ATTENUATION(i);	
+				shadow = atten; 
 
                 //Specular
                 float3 SpecularColor = BaseColor * Metallic + 0.04;
@@ -198,38 +237,45 @@
 				half3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
                 half3 I = -viewDir;
 
-                half3 reflectDir = reflect(viewDir,normalVec);
+                half3 reflectDir = reflect(-viewDir,normalVec);
 				half NdotV = clamp(dot(viewDir,normalVec),0,1);
                 half3 SunColor = _LightColor0.rgb;
                 half NdotL = dot(normalVec, lightDir);
 
-                half shadow = 1;/// Final Shadow
-				half ao = Normalmap.w;
+
+				half ao = AO;
 
                 half microshadow = shadow * clamp(abs(NdotL) + 2.0 * ao * ao - 1, 0.0, 1.0); // Normalmap.w AO
 				shadow = microshadow;
 
                 //GI :还原YMJH内置bakeLighting
-                half4 GILighting = half4(0,0,0,Normalmap.w);
+                half4 GILighting = half4(0,0,0,AO);
                 half4 LightMap = tex2D(_LightMap, i.uv.zw);
                 half4 lightMapRaw = half4(0,0,0,0);
+            #ifdef _LightMapEnable
                 lightMapRaw.xyz = LightMap.xyz * LightmapScale.x + LightmapScale.y;
                 lightMapRaw.w = LightMap.w;
+                
+            #else
+                lightMapRaw = half4(0,0,0,1);
+            #endif
                 half LogL = dot(lightMapRaw.xyz, half3(0.0955, 0.1878, 0.035)) + 7.5e-05;
                 half Luma =  exp2(LogL * 50.27 - 8.373);
 				half runtimeShadow = shadow;
 
-            #ifdef _LightMapEnable
-                shadow = shadow * LightMap.w * LightMap.w;
-            #endif
+                shadow = shadow * lightMapRaw.w * lightMapRaw.w;
 
-
-                GILighting.w = Normalmap.w * clamp(Luma, 0,1);
             #ifdef _LightMapEnable
-                half3 bakeLighting = lightMapRaw.xyz * (Normalmap.w * Luma / LogL) + SunColor.xyz * clamp(NdotL * shadow, 0.0, 1.0);
+                GILighting.xyz = lightMapRaw.xyz;
+                GILighting.w = AO * clamp(Luma, 0,1);
             #else
-                half3 bakeLighting = SunColor.xyz * clamp(NdotL * shadow, 0.0, 1.0);
+                GILighting.xyz = lightMapRaw.xyz;
+                GILighting.w = AO;
             #endif
+
+
+                half3 bakeLighting = lightMapRaw.xyz * (AO * Luma / LogL) + SunColor.xyz * clamp(NdotL * shadow, 0.0, 1.0);
+
                 //Sun Specular
                 half3 EnvBRDF = EnvBRDFApprox(SpecularColor, roughness, NdotV);
 
@@ -269,8 +315,8 @@
 				EmissionColor *= col.w;
 				OutColor += EmissionColor;
                 //AO :PC平台下，AO绘制在Forward之前，场景ScreenSpaceShadow之后，存在ScreenSpaceShadow纹理Y通道中
-                float AO = 1.0;
-                float a = clamp(AO + shadow * 0.5, 0.0, 1.0);//Blend AO;
+                float SSAO = 1.0;
+                float a = clamp(SSAO + shadow * 0.5, 0.0, 1.0);//Blend AO;
                 OutColor *= a;
 
                 // apply fog
@@ -291,5 +337,6 @@
             }
             ENDCG
         }
+        UsePass "MJH/Shadow/ShadowCaster"
     }
 }

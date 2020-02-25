@@ -1,4 +1,4 @@
-﻿Shader "MJH/Body"
+﻿Shader "MJH/Eye"
 {
 	Properties
 	{
@@ -13,7 +13,7 @@
 
 
 		AliasingFactor ("AliasingFactor", Range(0,1)) = 0.2
-		EnvStrength ("EnvStrength", Range(0,2)) = 1
+		EnvStrength ("EnvStrength", Range(0,10)) = 1
 		ShadowColor ("ShadowColor", Vector) = (0.1122132,0.3493512,0.00003981071,0.5)
 
 		EnvInfo ("EnvInfo", Vector) = (0,0.01,1,2.5)
@@ -183,7 +183,7 @@
 				fixed NdotV = clamp(dot(viewDir,normalVec),0,1);
 
 				half NdotL = dot(normalVec,lightDir);
-				//Shadow
+				//
 				half shadow = 1;
 				float atten = LIGHT_ATTENUATION(i);	
 				shadow = atten;

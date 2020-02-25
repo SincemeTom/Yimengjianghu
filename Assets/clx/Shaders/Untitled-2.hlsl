@@ -349,6 +349,7 @@ float4 SSSNewShading(in VertexShadingOutput IN,float3 userData)
  float3 SSS_Lut2=float3(lerp(sqrt(LutUV2.r),LutUV2.r,((1)-(cSSSIntensity))),LutUV2.rr);
  (SSS_Lut2.rgb)*=(SSS_Lut2.rgb);
  float3 SSS_SunIrradiance=((((lerp(((SSS_Lut2.rgb)*(SSS_Lut1.rgb)),((NoL)*(shadow)),vertexColorW))*(SunIrradiance)))*(AO));
+ return float4(VirtualLitIrradiance,1);
  float3 DiffuseIrradiance=((((((PointCloudIrradiance)+(RefractionIrradiance)))+(VirtualLitIrradiance)))+(SSS_SunIrradiance));
  float RoughnessLayer1=Roughness;
  float RoughnessLayer2=((Roughness)*(RoughnessOffset2));

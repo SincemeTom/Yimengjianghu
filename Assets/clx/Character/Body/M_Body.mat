@@ -40,7 +40,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EnvMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: f181b491e268cf24aa352d93191fed3f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _LightMap:
@@ -125,9 +125,9 @@ Material:
     - LightmapUVTransform: {r: 0.499023, g: 0.499023, b: 0.000488281, a: 0.000488281}
     - Paramter: {r: 0, g: 0, b: 0, a: 1}
     - Paramters: {r: 0, g: 0, b: 0, a: 1}
-    - ShadowColor: {r: 0.04736, g: 0.612, b: 0.006, a: 0.5}
+    - ShadowColor: {r: 0.04736, g: 0.612, b: 0.0063, a: 0.5}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - cEmissionScale: {r: 1, g: 1, b: 1, a: 1}
-    - cVirtualLitColor: {r: 1.913, g: 1.665, b: 2, a: 0}
+    - cVirtualLitColor: {r: 1.91305, g: 1.665, b: 2, a: 0}
     - cVirtualLitDir: {r: 0, g: 0, b: 1, a: 0}
