@@ -93,6 +93,7 @@ half4 CastHalf(in half4 color)
 }
 half4 MJH_UnpackNormal(in float4 normal)
 {
+    normal.g = 1 - normal.g;//G 通道反向
     return half4(normal.xy * 2.0 - 1.0, normal.zw);
 }
 half3 EnvBRDFApprox( half3 SpecularColor, half Roughness, half NoV )
@@ -175,6 +176,38 @@ half3 GetIBLIrradiance(in half Roughness,in float3 R)
     return sampleEnvSpecular;
 
 }
+half3 IBL_Specular(in half Roughness,in float3 R, in half3 SpecularColor, in half4 GILighting)
+{
+    half3 IBLSpecular = GetIBLIrradiance(Roughness, R);
+
+    IBLSpecular*= GILighting.w;
+    return SpecularColor * IBLSpecular;
+}
+half3 Sun_Specular(in float3 L,in float3 N, in float3 V, in half Roughness,in float3 R,in half NoV,in half NoL,in half3 SpecularColor)
+{
+    fixed3 H = normalize(V + L);
+    fixed VdotH = clamp(dot(V,H),0,1);
+    fixed NdotH = clamp(dot(N,H),0,1);
+    half rough = max(0.08,Roughness);
+    float a = rough * rough;
+    float a2 = a * a;
+    float d = (NdotH * a2 - NdotH) * NdotH + 1.0;
+    float D_GGX = rough / (d * d * 3.141593);
+
+    float k = a * 0.5;
+    
+ 
+    float G_SchlickV= NoV * (1-k) + k;
+    float G_SchlickL= saturate(NoL)*(1-k)+k;
+
+    float G = 0.25 / (G_SchlickV * G_SchlickL);
+    
+    float3 F = SpecularColor + (saturate(SpecularColor.g * 50) - SpecularColor) * exp2((-5.55473 * VdotH - 6.98316) * VdotH);
+
+    half3 sunSpec = D_GGX * G * F;
+    return sunSpec;
+}
+
 float CrystalBRDF(in float Roughness,in float3 L,in float3 V,in float3 N,in float3 SpecularColor )
 {
     float3 H = normalize(L+V);
@@ -212,4 +245,76 @@ half GetRoughnessFromSmoothness(in half Smoothness,in float3 N)
     half rain= EnvInfo.x * 0.5;
     rain = 1 - rain * saturate(3 * N.y + 0.2 + 0.1 * rain);
     return clamp( rain - rain * Smoothness ,0.05,1);
+}
+
+
+//Light0,1,2
+
+float4 Lights00 = float4(0,	0.6600003,	1	,0.5);
+float4 Lights01 = float4(13.51172,	11.5179	,9.20715,	0);
+float4 Lights02 = float4(-0.11366,	0.7181236,	0.6865711,	1);
+float4 Lights03 = float4(0.9999999,	0.9999999,	0.9999999,	0);
+
+float4 Lights10 = float4(0.05,	0.2142958,	0.4285888,	0.6811707);
+float4 Lights11 = float4(0.04736615,	0.6120656,	0.006309574,	0.5);
+float4 Lights12 = float4(1,	1,	1,	0);
+float4 Lights13 = float4(1180.298,	47.48998,	1032.886,	0);
+
+float4 Lights20 = float4(1805,	1015,	0.0005540166,	0.0009852217);
+float4 Lights21 = float4(0.5773502,	0.5773502,	0.5773502,	0.6515582);
+float4 Lights22 = float4(0,	0,	0,	0.6515584);
+float4 Lights23 = float4(-0.9832486,	0,	-0.4468413,	0);
+
+half3 LightingPS_SPEC(in float3 P,in float3 N,in float3 V,in half NoV,in half3 SpecularColor,in half Roughness,inout half3 DiffLit)
+{
+ half3 lighting=half3(0,0,0);
+ if (((Lights03.w)>(0)))
+ {
+ float3 L=((Lights00.xyz)-(P));
+ float dist=length(L);
+ (L)/=(dist);
+ float NoL=saturate(dot(N,L));
+ float Atten=saturate(((((dist)*(Lights01.w)))+(Lights00.w)));
+ (Atten)*=(Atten);
+ (DiffLit)+=(((Lights01.rgb)*(((NoL)*(Atten)))));
+ 
+ {
+ float m2=((((Roughness)*(Roughness)))+(0.0002));
+ (m2)*=(m2);
+ float3 H=normalize(((V)+(L)));
+ float NoH=saturate(dot(N,H));
+ float D=((((((((NoH)*(m2)))-(NoH)))*(NoH)))+(1));
+ (D)=(((((D)*(D)))+(1e-06)));
+ (D)=(((((0.25)*(m2)))/(D)));
+ (lighting)=(((((Lights01.rgb)*(SpecularColor)))*(((((Atten)*(NoL)))*(D)))));
+ }
+ }
+ if (((((Lights13.w)>(0)))&&(((Lights12.w)<=(0)))))
+ {
+ float4 LightPosRange=Lights10;
+ float4 LightColorAtten=Lights11;
+ float3 LightDir=Lights12.xyz;
+ float3 FallOffCosHalfThetaPHi=Lights13.xyz;
+ half3 L=((LightPosRange.xyz)-(P));
+ half D=length(L);
+ (L)/=(D);
+ half NoL=saturate(dot(N,L));
+ half DoL=dot(LightDir,(-(L)));
+ half Atten=saturate(((((D)*(LightColorAtten.w)))+(LightPosRange.w)));
+ (Atten)*=(Atten);
+ half spot=pow(saturate(((((DoL)*(FallOffCosHalfThetaPHi.y)))+(FallOffCosHalfThetaPHi.z))),FallOffCosHalfThetaPHi.x);
+ 
+ {
+ float m2=((((Roughness)*(Roughness)))+(0.0002));
+ (m2)*=(m2);
+ float3 H=normalize(((V)+(L)));
+ float NoH=saturate(dot(N,H));
+ float D=((((((((NoH)*(m2)))-(NoH)))*(NoH)))+(1));
+ (D)=(((((D)*(D)))+(1e-06)));
+ (D)=(((((0.25)*(m2)))/(D)));
+ (lighting)+=(((((((Lights11.rgb)*(SpecularColor)))*(((((Atten)*(NoL)))*(D)))))*(spot)));
+ }
+ (DiffLit)+=(((LightColorAtten.rgb)*(((((NoL)*(Atten)))*(spot)))));
+ }
+ return lighting;
 }

@@ -115,12 +115,12 @@ Material:
     - sss_enable: 0
     m_Colors:
     - ColorBias: {r: -0.001, g: -0.001, b: 0, a: 0}
-    - ColorScale: {r: 0.89, g: 0.89, b: 0.89, a: 0}
+    - ColorScale: {r: 1, g: 1, b: 1, a: 0}
     - EnvInfo: {r: 0, g: 0.66, b: 1, a: 0.4}
     - FogColor: {r: 0.2590002, g: 0.3290003, b: 0.623, a: 1.102886}
     - FogColor2: {r: 0, g: 0, b: 0, a: 0.7713518}
     - FogColor3: {r: 0.5, g: 0.35, b: 0.09500044, a: 0.6937419}
-    - FogInfo: {r: 70, g: 0.008, b: -0.003160504, a: 0.3555721}
+    - FogInfo: {r: 0, g: 0, b: 0, a: 0}
     - LightmapScale: {r: 0.92951, g: 0.01, b: 0, a: 0}
     - LightmapUVTransform: {r: 0.499023, g: 0.499023, b: 0.000488281, a: 0.000488281}
     - Paramter: {r: 0, g: 0, b: 0, a: 1}

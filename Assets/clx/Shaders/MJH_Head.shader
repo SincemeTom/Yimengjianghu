@@ -114,6 +114,7 @@
 				fixed4 texM = tex2D (_MixTex, i.uv);//Z :AO, W: vertex ColorW
 				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv, 0, NormalMapBias));//W 毛孔
 				
+				texN.g = 1 - texN.g;
 				float Curvature = texM.g;
 				float Thickness = texM.r;	
 				
@@ -137,7 +138,7 @@
 				
 				//Detail Normal
 				half4 detialNormalMap = tex2D(_DetailNormalTex, i.uv * _DeailUVScale);
-
+				detialNormalMap.g = 1 - detialNormalMap.g;
 				half3 detailValue = half3(0,0,0);
 				detailValue.x = detialNormalMap.z * 2.0 - 1.0;
 				detailValue.y = detialNormalMap.w * 2.0 - 1.0;
@@ -157,6 +158,7 @@
 
 				half NdotV = saturate(dot(viewDir,normalVec));
 				half NdotL = saturate(dot(normalVec,lightDir));
+				//return half4(NdotL.xxx,1);
 				// TODO: Shadow ,pcf_3x3, 
 				half shadow = 1;
 				float atten = LIGHT_ATTENUATION(i);	
@@ -255,14 +257,14 @@
 				fog *= fog;
 				
 
-				half3 fogColor = (FogColor2.xyz * clamp (viewDir.y * 5.0 + 1.0, 0.0, 1.0)) + FogColor.xyz;
+	/*			half3 fogColor = (FogColor2.xyz * clamp (viewDir.y * 5.0 + 1.0, 0.0, 1.0)) + FogColor.xyz;
 				half VdotL =  clamp (dot (-viewDir, lightDir), 0.0, 1.0);
-				fogColor =   fogColor + (FogColor3 * VdotL  * VdotL).xyz;
+				fogColor =   fogColor + (FogColor3 * VdotL  * VdotL).xyz;*/
 				
 				float3 Color = Out;
-				Color = Color * (1.0 - fog) + (Color.xyz * fog + fogColor) * fog;
+			/*	Color = Color * (1.0 - fog) + (Color.xyz * fog + fogColor) * fog;
 				Color = Color * EnvInfo.z;
-				Color =  clamp (Color.xyz, float3(0.0, 0.0, 0.0), float3(4.0, 4.0, 4.0));
+				Color =  clamp (Color.xyz, float3(0.0, 0.0, 0.0), float3(4.0, 4.0, 4.0));*/
 
 				//Liner to Gamma
 				Color.xyz = Color.xyz / (Color.xyz * 0.9661836 + 0.180676);

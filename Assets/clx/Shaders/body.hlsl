@@ -309,6 +309,7 @@ half3 SpecularLightingPbr(in float3 P,in float3 L,in float3 N,in float3 V,in hal
  float d=((((((((NoH)*(m2)))-(NoH)))*(NoH)))+(1));
  float D=((m2)/(((((d)*(d)))*(3.14159265))));
  float k=((m)*(0.5));
+ 
  float G_SchlickV=((((NoV)*(((1)-(k)))))+(k));
  float G_SchlickL=((((saturate(NoL))*(((1)-(k)))))+(k));
  half G=((0.25)/(((G_SchlickV)*(G_SchlickL))));

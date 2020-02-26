@@ -157,6 +157,7 @@
 
             half4 MJH_UnpackNormal(in float4 normal)
             {
+                normal.g = 1 - normal.g;
                 return half4(normal.xy * 2.0 - 1.0, normal.zw);
             }
             half3 EnvBRDFApprox( half3 SpecularColor, half Roughness, half NoV )

@@ -91,6 +91,7 @@
 				// sample the texture
 				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));
 				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv, 0, NormalMapBias));
+				texN.y = 1 - texN.y;
                 half4 unpackNormal = MJH_UnpackNormal(texN);
 				half texMask = tex2D(_MaskMap, i.uv);
 				half mask = texMask.x;
@@ -121,21 +122,24 @@
 				//Light & View Vector
 				half3 lightDir = normalize(_WorldSpaceLightPos0.www*(-i.worldPos) + _WorldSpaceLightPos0.xyz);
 				half3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
+				half3 SunColor = half3(0,0,0);
+				SunColor = _LightColor0.rgb;
 
+				half metalic = texM.y;//MixMap .y metalic
+				half3 SpecularColor = lerp(0.04,BaseColor,metalic);
+  				half3 DiffuseColor = (BaseColor - BaseColor * metalic) / 3.141593;
 
+				half3 reflectDir = reflect(-viewDir,normalVec);
+				fixed NdotV = clamp(dot(viewDir,normalVec),0,1);
+
+				half NdotL = dot(normalVec,lightDir);
+				
 				//GI :Messiah引擎GI数据还原
 				half4 linearColor = half4(0,0,0,0);
 
 			#ifdef PointCloudEnable			
-				half3 nSquared = normalVec * normalVec;
-				fixed3 isNegative = fixed3(lessThan(normalVec, fixed3(0.0,0.0,0.0))) ;
 
-				linearColor += nSquared.x * cPointCloudm[isNegative.x] + nSquared.y * cPointCloudm[isNegative.y + 2] + nSquared.z * cPointCloudm[isNegative.z + 4];
-
-				linearColor.xyz = max(half3(0.9,0.9,0.9),linearColor);
-
-				half3 shadowColorTmp = ShadowColor.x * (10.0 + cPointCloudm[3].w * ShadowColor.z * 100);
-				linearColor.xyz = shadowColorTmp * linearColor;
+				linearColor.xyz = DynamicGILight(normalVec);
 
 			#else
 
@@ -170,86 +174,66 @@
 				linearColor.xyz += gi.indirect.diffuse;
 			
 			#endif
+
 				half4 GILighting = half4(0,0,0,0);
 				GILighting.xyz = linearColor.xyz;
 				GILighting.w = texM.z;//MixMap .z ao
 
-
-				half metalic = texM.y;//MixMap .y metalic
-				half3 SpecularColor = lerp(0.04,BaseColor,metalic);
-  				half3 DiffuseColor = (BaseColor - BaseColor * metalic) / 3.141593;
-
-				half3 reflectDir = reflect(-viewDir,normalVec);
-				fixed NdotV = clamp(dot(viewDir,normalVec),0,1);
-
-				half NdotL = dot(normalVec,lightDir);
-				//Shadow
+				half3 userData1 = half3(0.3,0.3,1.1);
 				half shadow = 1;
 				float atten = LIGHT_ATTENUATION(i);	
 				shadow = atten;
-				shadow = shadow * clamp (abs(NdotL) + 2.0 * texM.z * texM.z - 1.0, 0.0, 1.0);
+				half ssao = 1;
+				half microshadow = shadow * clamp (abs(NdotL) + 2.0 * GILighting.w * GILighting.w - 1.0, 0.0, 1.0);
+				shadow *= microshadow;
+
+				//Sun light
+				half SunlightOffset = lerp(1,userData1.x * 2,SSSMask) * ShadowColor.g;
+				shadow *= SunlightOffset;
+				shadow *= cPointCloudm[0].w;
 
 				half3 diffLighting = half3(0,0,0);
-				//diffLighting += diffLight;
-				diffLighting =  diffLighting + GILighting.xyz * texM.z;
-				GILighting.w = texM.z * dot(diffLighting,half3(0.3,0.59,0.11));
-				half3 SunColor = half3(0,0,0);
-				SunColor = _LightColor0.rgb;
-				half3 SunLighting = clamp (NdotL * shadow, 0,1) * SunColor.xyz;
-				diffLighting = diffLighting + SunLighting;
+
+
+				GILighting.rgb = lerp(GILighting.rgb,  GILighting.rgb * userData1.y *2 , SSSMask);
+				diffLighting += GILighting.rgb * GILighting.w;
+
+
+				GILighting.a *= saturate(dot(diffLighting.rgb,half3(0.3,0.59,0.11)));
+				half3 SunLighting = saturate(NdotL) * SunColor * shadow;
+				diffLighting =  diffLighting + SunLighting;
+				GILighting.a = min(GILighting.a, ssao);
+
 
                 //Sun Specular
 
 				float3 EnvBRDF = EnvBRDFApprox(SpecularColor, roughness, NdotV);
-				float3 Reflect = viewDir - 2.0 * dot(normalVec , viewDir) * normalVec;
-				
+ 				half3 EnvSpecular = GetIBLIrradiance(roughness, reflectDir) * EnvInfo.w * 10.0 * EnvBRDF;
+				EnvSpecular = EnvSpecular * GILighting.w ;
 
-				half lod = roughness / 0.17;
-				half fSign = half(reflectDir.z > 0);
-				half temp =  fSign * 2.0 - 1.0;
-				half2 reflectuv = reflectDir.xy / (reflectDir.z * temp + 1.0);
-				reflectuv = reflectuv * half2(0.25, -0.25) + 0.25 + 0.5 * fSign;
-				
-				fixed4 srcColor = tex2Dlod (_EnvMap, half4(reflectuv.xy, 0, 0));
-				//fixed4 srcColor = fixed4(0,0,0,0);
- 				half3 EnvSpecular = srcColor.xyz * srcColor.w * srcColor.w * 16.0 * EnvStrength ;
-				EnvSpecular = EnvSpecular * GILighting.w * EnvInfo.w * 10.0;
-
-				fixed3 H = normalize(viewDir + lightDir);
-				fixed VdotH = clamp(dot(viewDir,H),0,1);
-				fixed NdotH = clamp(dot(normalVec,H),0,1);
-				half rough = max(0.08,roughness);
-				float a = rough * rough;
-				float a2 = a * a;
-				float d = (NdotH * a2 - NdotH) * NdotH + 1.0;
-				float D_GGX = rough / (d * d * 3.141593);
-
-				float half_a = a * 0.5;
-				float ClampNdotL = clamp (NdotL, 0.0, 1.0);
-				float G = 0.25 / ((NdotV * (1.0 - half_a)+ half_a) * (ClampNdotL * (1.0 - half_a)+ half_a));
-				
-				float temp70 = clamp(EnvBRDF.g * 50, 0, 1);
-
-				float3 F = EnvBRDF + (temp70 - EnvBRDF) * exp2((-5.55473 * VdotH - 6.98316) * VdotH);
-
-				half3 sunSpec = D_GGX * G * F;
-				sunSpec = sunSpec * SunColor.xyz * clamp (NdotL * shadow, 0.0, 1.0);
-
-				half3 Spec = EnvBRDF * EnvSpecular + sunSpec;
+				half3 sunSpec = Sun_Specular(lightDir, normalVec, viewDir, roughness, reflectDir, NdotV, NdotL, EnvBRDF);
+				sunSpec = sunSpec * SunColor.xyz * saturate(NdotL * shadow);
+				half3 Spec = EnvSpecular + sunSpec;
 
 				//Virtual Light
-				half3 norVirtualLitDir = normalize(cVirtualLitDir.xyz);
-				float ndotlVir = clamp (dot (norVirtualLitDir, normalVec), 0.0, 1.0);
-				float3 virtualLit = cVirtualLitColor.xyz * cEmissionScale.w * ndotlVir;
+
+
+				half3 VirtualLitDir = normalize(cVirtualLitDir.xyz);
+				float VirtualNdotL = clamp (dot (VirtualLitDir, normalVec), 0.0, 1.0);
+				float3 virtualLit = cVirtualLitColor.xyz * cEmissionScale.w * VirtualNdotL;
+				virtualLit = lerp(virtualLit, virtualLit * userData1.z * 2, SSSMask);
 				diffLighting +=virtualLit;
-				float NdotHVir = clamp (dot (normalVec, normalize(viewDir + norVirtualLitDir)), 0.0, 1.0); 
-				float roughVir = roughness * roughness + 0.0002;
-				float aVir = roughVir;
-				float aVir2 = roughVir * roughVir;
-				float dVir = (NdotHVir * aVir2- NdotHVir) * NdotHVir + 1.0;
-				float abVir = dVir * dVir +  1e-06;
-				float D_Vir = 0.25 * aVir2 / abVir;
-				half3 VirtualSpec = virtualLit * EnvBRDF * D_Vir;
+
+				//Virtual Spec
+				float3 virtualH = normalize(viewDir + VirtualLitDir);
+				float VirtualNdotH = clamp (dot (normalVec, virtualH), 0.0, 1.0); 
+				float m2= roughness*roughness+0.0002;
+ 				m2*=m2;
+				float d = (VirtualNdotH * m2 - VirtualNdotH) * VirtualNdotH + 1.0;
+				d = d * d +  1e-06;
+				half3 virtualSpec = 0.25 * m2 / d;
+
+				half3 VirtualSpecColor = virtualSpec * virtualLit * EnvBRDF;
 
 				//Apply Fog
 				float temp31 = clamp ((i.worldPos.y * FogInfo.z + FogInfo.w), 0.0, 1.0);
@@ -260,18 +244,19 @@
 				
 
 
-				half3 fogColor = (FogColor2.xyz * clamp (viewDir.y * 5.0 + 1.0, 0.0, 1.0)) + FogColor.xyz;
+				/*half3 fogColor = (FogColor2.xyz * clamp (viewDir.y * 5.0 + 1.0, 0.0, 1.0)) + FogColor.xyz;
 				half VdotL =  clamp (dot (-viewDir, lightDir), 0.0, 1.0);
 				fogColor =   fogColor + (FogColor3 * VdotL  * VdotL).xyz;
-				
-				float3 Color = Spec + VirtualSpec + diffLighting * DiffuseColor;
+				*/
+				float3 Color = Spec + VirtualSpecColor + diffLighting * DiffuseColor;
 
-				Color = Color * (1.0 - fog) + (Color.xyz * fog + fogColor) * fog;
+			/*	Color = Color * (1.0 - fog) + (Color.xyz * fog + fogColor) * fog;
 				Color = Color* EnvInfo.z;
-				Color =  clamp (Color.xyz, float3(0.0, 0.0, 0.0), float3(4.0, 4.0, 4.0));
+				Color =  clamp (Color.xyz, float3(0.0, 0.0, 0.0), float3(4.0, 4.0, 4.0));*/
 
 				//Liner to Gamma
 				Color.xyz = Color.xyz / (Color.xyz * 0.9661836 + 0.180676);
+
 
 				return half4 (Color.xyz, texBase.w);
 			}
