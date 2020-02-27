@@ -16,7 +16,7 @@ struct v2f
     half3 world_normal  : TEXCOORD2;
     half3 world_tangent : TEXCOORD3;
     half3 world_binormal : TEXCOORD4;
-
+    half4 screen_uv : TEXCOORD5;
     LIGHTING_COORDS(6,7)
     #if defined(LIGHTMAP_ON)|| defined(UNITY_SHOULD_SAMPLE_SH)
         float4 ambientOrLightmapUV : TEXCOORD8;
@@ -42,7 +42,7 @@ v2f vert (appdata v)
     o.world_normal = wNormal;
     o.world_tangent = wTangent; 
     o.world_binormal = wBinormal;
-    
+    o.screen_uv = ComputeGrabScreenPos(o.pos);
     TRANSFER_VERTEX_TO_FRAGMENT(o);
     UNITY_TRANSFER_FOG(o,o.pos);
     return o;
@@ -93,7 +93,6 @@ half4 CastHalf(in half4 color)
 }
 half4 MJH_UnpackNormal(in float4 normal)
 {
-    normal.g = 1 - normal.g;//G 通道反向
     return half4(normal.xy * 2.0 - 1.0, normal.zw);
 }
 half3 EnvBRDFApprox( half3 SpecularColor, half Roughness, half NoV )
@@ -317,4 +316,17 @@ half3 LightingPS_SPEC(in float3 P,in float3 N,in float3 V,in half NoV,in half3 S
  (DiffLit)+=(((LightColorAtten.rgb)*(((((NoL)*(Atten)))*(spot)))));
  }
  return lighting;
+}
+float3 GetDirectSPEC(float Roughness,float3 L,float3 V,float3 N,float3 SpecularColor)
+{
+    float NoL=saturate(dot(N,L));
+    float NoL4=NoL * NoL *NoL * NoL;
+    float3 H=normalize(V + L);
+    float NoH=saturate(dot(N,H));
+    float m=((Roughness)*(Roughness));
+    float m2=((m)*(m));
+    float d = (NoH * m2 - NoH ) * NoH + 1;
+    float D = m2 / ( d * d ) * 0.25;
+
+    return SpecularColor * D * NoL4;
 }

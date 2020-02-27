@@ -133,6 +133,10 @@
 				fixed NdotV = clamp(dot(viewDir,normalVec),0,1);
 
 				half NdotL = dot(normalVec,lightDir);
+				//shadow
+				half shadow = 1;
+				float atten = LIGHT_ATTENUATION(i);	
+				shadow = atten;
 				
 				//GI :Messiah引擎GI数据还原
 				half4 linearColor = half4(0,0,0,0);
@@ -180,9 +184,7 @@
 				GILighting.w = texM.z;//MixMap .z ao
 
 				half3 userData1 = half3(0.3,0.3,1.1);
-				half shadow = 1;
-				float atten = LIGHT_ATTENUATION(i);	
-				shadow = atten;
+
 				half ssao = 1;
 				half microshadow = shadow * clamp (abs(NdotL) + 2.0 * GILighting.w * GILighting.w - 1.0, 0.0, 1.0);
 				shadow *= microshadow;

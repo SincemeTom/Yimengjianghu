@@ -24,7 +24,7 @@
 
 		[HDR]cVirtualLitColor ("cVirtualLitColor", Color) = (1, 0.72, 0.65, 0)
 		cVirtualLitDir ("cVirtualLitDir", Vector) = (-0.5, 0.114 , 0.8576, 0.106)
-		cVirtualColorScale ("VirtualColorScale", Range(0,10)) = 4
+
 		_SSSIntensity("SSS Intensity", Range(0,3)) = 1
 		_RoughnessOffset("Roughness Offset", Range(0,1)) = 0.3
 		_CrystalRange("Crystal Range", Range(0,1)) = 0.3
@@ -229,7 +229,7 @@
 				float3 IBLSpecRadiance = GetIBLIrradiance(Roughness, reflectDir) * EnvBRDF * AO * AO;
 
 				SpecRadiance = SunSpecRadiance + VirtualSpecRadiance + PointCloudSpecRadiance + IBLSpecRadiance;
-
+//return half4(SpecRadiance,1);
 				//Crystal
 				half3 crystalMaskmap = tex2D(_CrystalMask, i.uv);	
 				half3 crystalmap = tex2D(_CrystalMapTex, 5 * _CrystalUVTile * i.uv);

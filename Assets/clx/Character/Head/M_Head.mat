@@ -99,7 +99,7 @@ Material:
     - NormalMapBias: -0.5
     - PointCloudEnable: 1
     - _BumpScale: 1
-    - _CrystalIntensity: 1
+    - _CrystalIntensity: 1.19
     - _CrystalRange: 0.3
     - _CrystalUVTile: 3
     - _CrystalVirtualLit: 0
@@ -114,7 +114,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RoughnessOffset: 0.784
+    - _RoughnessOffset: 0.76
     - _SSSIntensity: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -122,7 +122,7 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     - cSkinCurvature: 0.5
-    - cVirtualColorScale: 5.67
+    - cVirtualColorScale: 6.09
     - maokong_intensity: 0.5
     m_Colors:
     - EnvInfo: {r: 0, g: 0.66, b: 1, a: 0.4}
@@ -137,4 +137,4 @@ Material:
     - _SSSColor: {r: 0.7, g: 0.2, b: 0.5, a: 1}
     - cEmissionScale: {r: 1, g: 1, b: 1, a: 1}
     - cVirtualLitColor: {r: 1.91305, g: 1.665, b: 2, a: 0}
-    - cVirtualLitDir: {r: 0, g: 0.05, b: 0.27, a: 0}
+    - cVirtualLitDir: {r: 0, g: 0.55, b: 0.72, a: 0}

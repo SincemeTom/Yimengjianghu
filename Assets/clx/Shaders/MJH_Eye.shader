@@ -207,7 +207,7 @@
 
 				//SunColor
 				half3 userData1 = half3(0.3,0.3,1.1);
-				float3 SunColor2 = SunColor.xyz * userData1.x * 2 * ShadowColor.a;
+				float3 SunColor2 = SunColor.xyz * userData1.x * 2 * ShadowColor.g;
 				SunColor2*= cPointCloudm[0].w;
 				GILighting.rgb *= userData1.y * 2;
 
