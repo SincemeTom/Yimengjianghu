@@ -14,6 +14,16 @@ cbuffer GlobalPS :register(b3)
  float4 FogColor2:packoffset(c11);
  float4 FogColor3:packoffset(c12);
  float4x4 ViewProjPS:packoffset(c13);
+ /*
+ -0.9832486	0	-0.4468413	1622.062
+0.004161474	1.921009	-0.009157084	-89.56374
+-0.4137498	0.005236164	0.9104326	-449.0316
+-0.4137325	0.005235945	0.9103947	-448.7629
+
+0.417684	-0.04451837	-0.9075011
+
+1181.746	48.97166	1029.7	261.0168
+ */
 };
 cbuffer UserBuffer :register(b6)
 {
@@ -309,7 +319,7 @@ half3 SpecularLightingPbr(in float3 P,in float3 L,in float3 N,in float3 V,in hal
  float d=((((((((NoH)*(m2)))-(NoH)))*(NoH)))+(1));
  float D=((m2)/(((((d)*(d)))*(3.14159265))));
  float k=((m)*(0.5));
- 
+
  float G_SchlickV=((((NoV)*(((1)-(k)))))+(k));
  float G_SchlickL=((((saturate(NoL))*(((1)-(k)))))+(k));
  half G=((0.25)/(((G_SchlickV)*(G_SchlickL))));

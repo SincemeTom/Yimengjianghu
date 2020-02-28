@@ -236,7 +236,6 @@ half GetRoughnessFromRoughness(in half Roughness,in float3 N)
     half rain= EnvInfo.x * 0.5;
     rain = 1 - rain * saturate(3 * N.y + 0.2 + 0.1 * rain);
     return clamp( rain * Roughness ,0.05,1);
-    return Roughness;
 }
 half GetRoughnessFromSmoothness(in half Smoothness,in float3 N)
 {

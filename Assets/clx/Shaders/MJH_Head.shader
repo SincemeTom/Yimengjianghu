@@ -9,7 +9,7 @@
 		_NormalTex ("Normal", 2D) = "normal" {}
 		NormalMapBias ("NormalMapBias ", Range(-1,1)) = -0.5
 		_DetailNormalTex("Detail Normal Map", 2D) = "black"
-		_DeailUVScale("Deail UV Scale", float) = 1
+		_DeailUVScale("Deail UV Scale", float) = 9
 		maokong_intensity("maokong intensity", float) = 1
 		_EnvMap ("Reflect", 2D) = "black" {}
 		_LutMap("Lut Map ", 2D) = "black" {}
@@ -138,7 +138,7 @@
 				
 				//Detail Normal
 				half4 detialNormalMap = tex2D(_DetailNormalTex, i.uv * _DeailUVScale);
-				detialNormalMap.g = 1 - detialNormalMap.g;
+//detialNormalMap.w = 1.0 - detialNormalMap.w;
 				half3 detailValue = half3(0,0,0);
 				detailValue.x = detialNormalMap.z * 2.0 - 1.0;
 				detailValue.y = detialNormalMap.w * 2.0 - 1.0;
@@ -178,7 +178,7 @@
 				//Virtual light 
 				float3 VirtualLitDir = normalize(cVirtualLitDir);
 				float3 VirtualLitColor = cVirtualLitColor.xyz;
-				float3 VirtualLitNoL = 0.444 + 0.556 * saturate(dot(bentNormal, VirtualLitDir));
+				float VirtualLitNoL = 0.444 + 0.556 * saturate(dot(bentNormal, VirtualLitDir));
 
 				half3 VirtualLitIrradiance = VirtualLitColor * userData1.z * 2.0 * AO * VirtualLitNoL;
 
@@ -193,6 +193,7 @@
 				float3 SSS_Lut1 = tex2D(_LutMap, LutUV1);
 				SSS_Lut1.xyz *= SSS_Lut1.xyz;
 				float DdotL = saturate(dot(detailNormalVec, lightDir));
+		
 				DdotL = DdotL - NdotL;
 				float LutUV2 = shadow + DdotL * shadow;
 				float3 SSS_Lut2 = float3(lerp(sqrt(LutUV2.r), LutUV2.r, 1 - _SSSIntensity), LutUV2.rr);
@@ -203,7 +204,7 @@
 				float3 SSS_SunIrradiance = lerp(SSS_Lut2.xyz * SSS_Lut1.xyz, NdotL * shadow, vertexColorw) * SunIrradiance * AO;
 
 				float3 DiffuseIrradiance = PointCloudIrradiance + RefractionIrradiance + VirtualLitIrradiance + SSS_SunIrradiance;
-
+		
 				//Specular
 				float RoughnessLayer1 = Roughness;
 				float RoughnessLayer2 = Roughness * _RoughnessOffset;
@@ -211,16 +212,15 @@
 				float3 SpecRadiance = float3(0,0,0);
 				float3 EnvBRDF = float3(0,0,0);
 				float brdfParam = SunIrradiance * NdotL * 2 * SpecularMask * shadow;
-				float3 BRDF = float3(0,0,0);
 
 				float3 SpecularColor=float3(0.04,0.04,0.04);
 
-				BRDF = SpecBRDFPbr(RoughnessLayer1,RoughnessLayer2, lightDir, viewDir, detailNormalVec, SpecularColor);
+				float3 BRDF = SpecBRDFPbr(RoughnessLayer1,RoughnessLayer2, lightDir, viewDir, detailNormalVec, SpecularColor);
 				float3 SunSpecRadiance = BRDF * brdfParam;
 
-				BRDF = SpecBRDFPbr(RoughnessLayer1,RoughnessLayer2, VirtualLitDir, viewDir, detailNormalVec, SpecularColor);
+				float3 VirtualBRDF = SpecBRDFPbr(RoughnessLayer1,RoughnessLayer2, VirtualLitDir, viewDir, detailNormalVec, SpecularColor);
 
-				float3 VirtualSpecRadiance = VirtualLitIrradiance * BRDF * SpecularMask;
+				float3 VirtualSpecRadiance = VirtualLitIrradiance * VirtualBRDF * SpecularMask;
 
 				EnvBRDF = EnvBRDFApprox(SpecularColor, Roughness, NdotV);
 
@@ -229,7 +229,7 @@
 				float3 IBLSpecRadiance = GetIBLIrradiance(Roughness, reflectDir) * EnvBRDF * AO * AO;
 
 				SpecRadiance = SunSpecRadiance + VirtualSpecRadiance + PointCloudSpecRadiance + IBLSpecRadiance;
-//return half4(SpecRadiance,1);
+
 				//Crystal
 				half3 crystalMaskmap = tex2D(_CrystalMask, i.uv);	
 				half3 crystalmap = tex2D(_CrystalMapTex, 5 * _CrystalUVTile * i.uv);
