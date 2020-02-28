@@ -330,3 +330,18 @@ float3 GetDirectSPEC(float Roughness,float3 L,float3 V,float3 N,float3 SpecularC
 
     return SpecularColor * D * NoL4;
 }
+
+half AnisoSpec(in half3 V,in half3 L,in half3 N,in half NoL,in half3 Tangent,in half3 Binormal,in half RoughnessX,in half RoughnessY)
+{
+    half len=max(0.001,length(((L)+(V))));
+    half3 H=((((L)+(V)))/(len));
+    half VoN=max(0.001,dot(V,N));
+    half HoN=dot(H,N);
+    half HoT=dot(H,Tangent);
+    half HoB=dot(H,Binormal);
+    float2 beta=float2(((HoT)/(RoughnessX)),((HoB)/(RoughnessY)));
+    (beta)*=(beta);
+    half s_den=max(0.001,((((((314.15926)*(RoughnessX)))*(RoughnessY)))*(sqrt(((NoL)*(VoN))))));
+    half aniso=((exp((((-(((beta.x)+(beta.y)))))/(max(0.01,((0.5)+(((0.5)*(HoN)))))))))/(s_den));
+    return aniso;
+}

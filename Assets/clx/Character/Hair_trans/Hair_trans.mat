@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_Corneal
-  m_Shader: {fileID: 4800000, guid: bca53612074bbe84cb065d1decdcad51, type: 3}
+  m_Name: Hair_trans
+  m_Shader: {fileID: 4800000, guid: 0a254ddda4557fe47a0a0ca7ef466833, type: 3}
   m_ShaderKeywords: PointCloudEnable
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -40,15 +40,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EnvMap:
-        m_Texture: {fileID: 2800000, guid: 0b75f3a290116fd468fc52d4d0bbb3b4, type: 3}
+        m_Texture: {fileID: 2800000, guid: f181b491e268cf24aa352d93191fed3f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 24fd9a18dab49ad4ba1663c2273103da, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MaskMap:
-        m_Texture: {fileID: 2800000, guid: 3380454231029424a96b95074e1857b8, type: 3}
+        m_Texture: {fileID: 2800000, guid: 524a46d39d90bdc4b95298854d391618, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -56,11 +52,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MixTex:
-        m_Texture: {fileID: 2800000, guid: 3380454231029424a96b95074e1857b8, type: 3}
+        m_Texture: {fileID: 2800000, guid: 04c7c2565850b0646897173b58af444e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: ec51863ef4b1478439b874c32e2329eb, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -71,10 +67,20 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _ReflectTex:
+        m_Texture: {fileID: 2800000, guid: f181b491e268cf24aa352d93191fed3f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SkinProfileMapSampler:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - AliasingFactor: 0.2
     - BaseMapBias: -1
-    - EnvStrength: 0.23
+    - Curvature: 0.5
+    - EnvStrength: 1
+    - Metallic: 0
     - NormalMapBias: -0.5
     - PointCloudEnable: 1
     - _BumpScale: 1
@@ -84,28 +90,26 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Metallic: 0
+    - _Metallic: 1
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Roughness: 0.05
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
+    - cAnisotropicScale: 1
+    - cRoughnessX: 0.1
+    - cRoughnessY: 1
+    - cSkinCurvature: 0.5
+    - cVirtualColorScale: 4
     m_Colors:
-    - ColorBias: {r: -0.001, g: -0.001, b: 0, a: 0}
-    - ColorScale: {r: 0.89, g: 0.89, b: 0.89, a: 0}
     - EnvInfo: {r: 0, g: 0.66, b: 1, a: 0.5}
-    - FogColor: {r: 0.2590002, g: 0.3290003, b: 0.623, a: 1.102886}
-    - FogColor2: {r: 0, g: 0, b: 0, a: 0.7713518}
-    - FogColor3: {r: 0.5, g: 0.35, b: 0.09500044, a: 0.6937419}
-    - FogInfo: {r: 70, g: 0.008, b: -0.003160504, a: 0.3555721}
-    - ShadowColor: {r: 0.047366, g: 0.61206, b: 0.0063, a: 0.5}
+    - Paramter: {r: 0, g: 0, b: 0, a: 1}
+    - ShadowColor: {r: 0.0473, g: 0.61206, b: 0.0063, a: 0.5}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _EyeColor: {r: 0.1973174, g: 0.1973174, b: 0.1973174, a: 1}
     - cEmissionScale: {r: 1, g: 1, b: 1, a: 1}
     - cVirtualLitColor: {r: 1.91305, g: 1.665, b: 2, a: 0}
-    - cVirtualLitDir: {r: 0.35, g: 0.14, b: 1, a: 0}
+    - cVirtualLitDir: {r: 0, g: 0, b: 1, a: 0}
