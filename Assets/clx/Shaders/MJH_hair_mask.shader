@@ -253,28 +253,12 @@
 
 				half3 VirtualSpecColor = virtualSpec * virtualLit * EnvBRDF;
 				
-				/*half4 FogInfo = half4(30, 0.0326,0.00672, 31.05);
-				float temp31 = clamp ((i.worldPos.y * FogInfo.z + FogInfo.w), 0.0, 1.0);
-				float fHeightCoef = temp31*temp31;
-				fHeightCoef*=fHeightCoef;
-				float fog = 1.0 - exp(-max (0.0, viewDir - FogInfo.x)* max (FogInfo.y * fHeightCoef, 0.1 * FogInfo.y));
-				fog *= fog;
-				
 
-				half4 FogColor = half4(0.224,0.2949,0.54588,0.36);
-				half4 FogColor2 = half4(0,0,0,0.36);
-				half4 FogColor3 = half4(4,1.45,0,0.36);
-
-				half3 fogColor = (FogColor2.xyz * clamp (viewDir.y * 5.0 + 1.0, 0.0, 1.0)) + FogColor.xyz;
-				half VdotL =  clamp (dot (-viewDir, lightDir), 0.0, 1.0);
-				fogColor =   fogColor + (FogColor3 * VdotL  * VdotL).xyz;*/
 				
 				//float3 Color = Emission.xyz;
 				float3 Color = Spec + VirtualSpecColor + diffLighting * DiffuseColor + Emission.xyz;
  
-				/*Color = Color * EnvInfo.z;
-				Color = clamp(Color.xyz, float3(0.0, 0.0, 0.0), float3(4.0, 4.0, 4.0));
-				Color = Color * (1.0 - fog) + (Color.xyz * fog + fogColor) * fog;*/
+
 				Color.xyz = Color.xyz / (Color.xyz * 0.9661836 + 0.180676);
 				// apply fog
 				UNITY_APPLY_FOG(i.fogCoord, col);

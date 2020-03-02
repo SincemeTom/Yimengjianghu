@@ -264,23 +264,10 @@
 				float3 FinalColor = Specular + lighting * DiffuseColor.rgb;
 
 				//Apply Fog
-				/*float temp31 = clamp ((i.worldPos.y * FogInfo.z + FogInfo.w), 0.0, 1.0);
-				float fHeightCoef = temp31*temp31;
-				fHeightCoef*=fHeightCoef;
-				float fog = 1.0 - exp(-max (0.0, viewDir - FogInfo.x)* max (FogInfo.y * fHeightCoef, 0.1 * FogInfo.y));
-				fog *= fog;
-				
-
-
-				half3 fogColor = (FogColor2.xyz * clamp (viewDir.y * 5.0 + 1.0, 0.0, 1.0)) + FogColor.xyz;
-				half VdotL =  clamp (dot (-viewDir, lightDir), 0.0, 1.0);
-				fogColor =   fogColor + (FogColor3 * VdotL  * VdotL).xyz;*/
 				
 				float3 Color = FinalColor;
 
-				/*Color = Color * (1.0 - fog) + (Color.xyz * fog + fogColor) * fog;
-				Color = Color* EnvInfo.z;
-				Color =  clamp (Color.xyz, float3(0.0, 0.0, 0.0), float3(4.0, 4.0, 4.0));*/
+
 
 				//Liner to Gamma
 				Color.xyz = Color.xyz / (Color.xyz * 0.9661836 + 0.180676);
