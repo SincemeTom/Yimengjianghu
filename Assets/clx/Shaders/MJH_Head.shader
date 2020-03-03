@@ -32,12 +32,6 @@
 		_CrystalIntensity("Crystal Intensity",Range(0,2)) = 1
 		_CrystalUVTile("Crystal UVTile", float) = 3
 		_CrystalVirtualLit("Crystal Virtual Lit", Range(0,1)) = 0
-
-				FogInfo("Fog Info", Vector) = (70,0.008,-0.003160504,0.3555721)
-
-        FogColor("FogInfo", Color) = (0.2590002, 0.3290003, 0.623, 1.102886) 
-        FogColor2("FogInfo2", Color) = (0,0,0,0.7713518)
-        FogColor3("FogInfo3", Color) = (0.5, 0.35, 0.09500044, 0.6937419 )
 	}
 	SubShader
 	{
@@ -108,7 +102,7 @@
 						float4 (0.3423186,	0.4456023,	0.4700097,	1),
 						float4 (0.6410592,	0.5083932,	0.4235953,	1)
 				};
-				
+				half3 userData1 = half3(0.5,0.5,0.5);
 				//Sample Textures
 				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));//BaseColor.w save Roughness
 				fixed4 texM = tex2D (_MixTex, i.uv);//Z :AO, W: vertex ColorW
@@ -163,7 +157,7 @@
 				half shadow = 1;
 				float atten = LIGHT_ATTENUATION(i);	
 				shadow = atten;
-				half3 userData1 = half3(0.3,0.3,1.1);
+
 				half3 SunIrradiance = SunColor.xyz * userData1.x * 2.0 * ShadowColor.y /** cPointCloudm[0].w*/;
 				
 				half3 ScatterAO = half3(0,0,0);
@@ -252,10 +246,14 @@
 				
 				float3 Color = Out;
 
-
+				//Apply Fog
+				float VdotL = saturate(dot(-viewDir, lightDir));
+				Color = ApplyFogColor(Color, i.worldPos.xyz, viewDir.xyz, VdotL, EnvInfo.z);
 				//Liner to Gamma
+
 				Color.xyz = Color.xyz / (Color.xyz * 0.9661836 + 0.180676);
 				//Color = half3(0,0,0);
+				Color.xyz =  GetFinalGrayColor(Color.xyz,1);
 
 				return half4 (Color, 1);
 			}

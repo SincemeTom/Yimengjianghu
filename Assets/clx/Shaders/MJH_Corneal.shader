@@ -88,7 +88,9 @@
 					float4 (0.3423186,	0.4456023,	0.4700097,	1),
 					float4 (0.6410592,	0.5083932,	0.4235953,	1)
 				};
-				
+				//User Data
+				 // X : Sunlight Y：GI Z：VirtualLight				
+				half3 userData1 = half3(0.5,0.5,0.5);
 				// sample the texture
 				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));
 
@@ -134,8 +136,7 @@
 				float atten = LIGHT_ATTENUATION(i);	
 				shadow = atten;
 
-				//User Data
-				half3 userData1 = half3(0.3,0.3,1.1); // X : Sunlight Y：GI Z：VirtualLight
+
 
 				//GI :Messiah引擎GI数据还原
 				half4 GILighting = half4(0,0,0,0);
@@ -188,10 +189,12 @@
 				float3 Color = sceneColor.xyz;
 				//Final Color
 
-
+				//Apply Fog
+				float VdotL = saturate(dot(-viewDir, lightDir));
+				Color = ApplyFogColor(Color, i.worldPos.xyz, viewDir.xyz, VdotL, EnvInfo.z);
 
 				//Liner to Gamma
-				Color.xyz = clamp(Color.xyz, half3(0,0,0),half3(4,4,4));
+
 				Color.xyz = Color.xyz / (Color.xyz * 0.9661836 + 0.180676);
 
 				return half4 (Color.xyz, texBase.w);

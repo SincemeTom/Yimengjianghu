@@ -107,9 +107,9 @@ Material:
     m_Colors:
     - EnvInfo: {r: 0, g: 0.66, b: 1, a: 0.5}
     - Paramter: {r: 0, g: 0, b: 0, a: 1}
-    - ShadowColor: {r: 0.0473, g: 0.61206, b: 0.0063, a: 0.5}
+    - ShadowColor: {r: 0.1726, g: 1, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - cEmissionScale: {r: 1, g: 1, b: 1, a: 1}
-    - cVirtualLitColor: {r: 1.91305, g: 1.665, b: 2, a: 0}
+    - cVirtualLitColor: {r: 2.5, g: 2.5, b: 2.5, a: 0}
     - cVirtualLitDir: {r: 0, g: 0, b: 1, a: 0}

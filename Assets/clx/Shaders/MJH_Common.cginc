@@ -53,11 +53,11 @@ sampler2D _EnvMap;
 half EnvStrength;
 float4 EnvInfo;
 float4 ShadowColor;
-float4 FogInfo;
+//float4 FogInfo;
 
-float4 FogColor; // (0.2590002, 0.3290003, 0.623, 1.102886) 
-float4 FogColor2; //(0,0,0,0.7713518)
-float4 FogColor3; //(0.5, 0.35, 0.09500044, 0.6937419 )
+//float4 FogColor; // (0.2590002, 0.3290003, 0.623, 1.102886) 
+//float4 FogColor2; //(0,0,0,0.7713518)
+//float4 FogColor3; //(0.5, 0.35, 0.09500044, 0.6937419 )
 fixed3 lessThan(float3 a, float3 b)
 {
     fixed3 r = fixed3(1,1,1);
@@ -138,12 +138,12 @@ half3 DynamicGILight(in float3 worldNormal)
 {
     float4 cPointCloudm[6] = 
     {
-        float4 (0.4153285,	0.3727325,	0.3066995,	1),
-        float4 (0.6216756,	0.6451226,	0.6716674,	1),
-        float4 (0.5540166,	0.7015119,	0.8980855,	1),
-        float4 (0.3778813,	0.2398499,	0.05358088,	1),
-        float4 (0.3423186,	0.4456023,	0.4700097,	1),
-        float4 (0.6410592,	0.5083932,	0.4235953,	1)
+        float4 (1,	0.9658147,	0.8993845,	1),
+        float4 (1,	0.9658147,	0.8993845,	1),
+        float4 (1,	0.9658147,	0.8993845,	1),
+        float4 (1,	0.9658147,	0.8993845,	1),
+        float4 (1,	0.9658147,	0.8993845,	1),
+        float4 (1,	0.9658147,	0.8993845,	1),
     };
     half3 nSquared= worldNormal * worldNormal;
     //int3 isNegative=((worldNormal)<(0.0));
@@ -344,3 +344,33 @@ half AnisoSpec(in half3 V,in half3 L,in half3 N,in half NoL,in half3 Tangent,in 
     half aniso=((exp((((-(((beta.x)+(beta.y)))))/(max(0.01,((0.5)+(((0.5)*(HoN)))))))))/(s_den));
     return aniso;
 }
+float3 GetFinalGrayColor(in float3 rgb,in float gray)
+{
+    float x = 0;
+ float weight=0;
+ (weight)=(step(2,((saturate(gray))+(x))));
+ return ((((rgb)*(((1)-(weight)))))+(((weight)*(dot(rgb,half3(0.3,0.59,0.11))))));
+}
+
+
+float3 ApplyFogColor(float3 Color, float3 WorldPos, float3 V,float VoL, float FogEnvInfo)
+{
+    float4 FogInfo  =  float4(11.002,509,27,0);	
+    float4 FogColor =  float4(2.31,2.7,3,0.3);
+    float4 FogColor2 = float4(0,0,0,0.2742319);
+    float4 FogColor3 = float4(0,0,0,0.2869582);
+
+    float tmp = saturate(WorldPos.y * FogInfo.z + FogInfo.w);
+    float fHeightCoef = tmp * tmp;
+    fHeightCoef *= fHeightCoef;
+    float fog = 1.0 - exp(-max (0.0, V - FogInfo.x)* max (FogInfo.y * fHeightCoef, 0.1 * FogInfo.y));
+
+    float3 fogColor = FogColor2.xyz * saturate(V.y * 5.0 + 1.0) + FogColor.xyz;
+    fogColor += FogColor3.rgb * VoL * VoL;
+    float3 col = lerp(Color.rgb, Color.rgb * (1 - fog) + fogColor.rgb, fog);
+    col = clamp(col, float3(0,0,0),float3(4,4,4));
+    col *= FogEnvInfo;
+    col = col * half3(FogColor.w,FogColor2.w,FogColor3.w);
+    return col; 
+}
+			

@@ -33,6 +33,7 @@
 		Pass
 		{
 			Tags { "LIGHTMODE"="ForwardBase"}
+			Cull Off
 			CGPROGRAM
 			#pragma multi_compile_fwdbase
 			#pragma multi_compile __ SSS_ENABLE
@@ -82,8 +83,9 @@
 					float4 (0.3423186,	0.4456023,	0.4700097,	1),
 					float4 (0.6410592,	0.5083932,	0.4235953,	1)
 				};
-
-				half3 userData1 = half3(0.3,0.3,1.1);
+				//User Data
+				 // X : Sunlight Y：GI Z：VirtualLight				
+				half3 userData1 = half3(0.5,0.5,0.5);
 
 				// sample the texture
 				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));
@@ -257,7 +259,9 @@
 				
 				//float3 Color = Emission.xyz;
 				float3 Color = Spec + VirtualSpecColor + diffLighting * DiffuseColor + Emission.xyz;
- 
+ 				//Apply Fog
+				float VdotL = saturate(dot(-viewDir, lightDir));
+				Color = ApplyFogColor(Color, i.worldPos.xyz, viewDir.xyz, VdotL, EnvInfo.z);
 
 				Color.xyz = Color.xyz / (Color.xyz * 0.9661836 + 0.180676);
 				// apply fog

@@ -22,13 +22,13 @@
 		[HDR]cVirtualLitColor ("cVirtualLitColor", Color) = (1, 0.72, 0.65, 0)
 		cVirtualLitDir ("cVirtualLitDir", Vector) = (-0.5, 0.114 , 0.8576, 0.106)
 
-		ColorScale("Color Scale", Vector) = (0.89, 0.89, 0.89, 0)
-		ColorBias("Color Bias", Vector) = (-0.001, -0.001, 0, 0)
-		FogInfo("Fog Info", Vector) = (70,0.008,-0.003160504,0.3555721)
+		_ColorTransform0("ColorTransform0", Vector) = (0.897 ,0,	0,	0)
+		_ColorTransform1("ColorTransform1", Vector) = (0.897 ,0,	0,	0)
+		_ColorTransform2("ColorTransform2", Vector) = (0.897 ,0,	0,	0)
 
-        FogColor("FogInfo", Color) = (0.2590002, 0.3290003, 0.623, 1.102886) 
-        FogColor2("FogInfo2", Color) = (0,0,0,0.7713518)
-        FogColor3("FogInfo3", Color) = (0.5, 0.35, 0.09500044, 0.6937419 )
+		_ColorTransform3("ColorTransform3", Vector) = (1, 0, 0, 0)
+		_ColorTransform4("ColorTransform4", Vector) = (0, 1, 0, 0)
+		_ColorTransform5("ColorTransform5", Vector) = (-0.001,-0.001,1,0)
 
 	}
 	SubShader
@@ -69,10 +69,13 @@
 			half4 cEmissionScale;
 			float cVirtualColorScale;
 			
-			float4 ColorScale;
-			float4 ColorBias;
+			float4 _ColorTransform0;
+			float4 _ColorTransform1;
+			float4 _ColorTransform2;
 
-
+			float4 _ColorTransform3;
+			float4 _ColorTransform4;
+			float4 _ColorTransform5;
 
 			fixed4 frag (v2f i) : SV_Target
 			{
@@ -87,8 +90,9 @@
 					float4 (0.3423186,	0.4456023,	0.4700097,	1),
 					float4 (0.6410592,	0.5083932,	0.4235953,	1)
 				};
-				
-				half3 userData1 = half3(0.3,0.3,1.1);
+				//User Data
+				 // X : Sunlight Y：GI Z：VirtualLight				
+				half3 userData1 = half3(0.5,0.5,0.5);
 
 				// sample the texture
 				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));
@@ -105,11 +109,13 @@
                 half SSSMask = 1 - texN.w;
 				half3 BaseColor = texBase.rgb * texBase.rgb;
 				half3 baseColorData = BaseColor;
-				half3 scaleBaseColor = baseColorData * ColorScale.xyz;//Color Transform0,1,2
-				BaseColor = BaseColor * (1.0 - mask) + clamp(scaleBaseColor, 0, 1) * mask;
 
-				half3 biasColor = baseColorData + ColorBias.xyz;//Color Transform 3,4,5
-				BaseColor = BaseColor * (1 - SSSMask) + clamp(biasColor, 0, 1) * SSSMask;
+
+				//ColorTransform
+
+				BaseColor = lerp(BaseColor,saturate(half3(dot(_ColorTransform0,baseColorData),dot(_ColorTransform1,baseColorData),dot(_ColorTransform2,baseColorData))),mask);
+				BaseColor = lerp(BaseColor,saturate(half3(dot(_ColorTransform3,baseColorData),dot(_ColorTransform4,baseColorData),dot(_ColorTransform5,baseColorData))),SSSMask);
+
 
 				//Normal
 				half3 normalTex = half3(texN.rgb * 2.0 - 1.0);
@@ -186,7 +192,8 @@
 			#endif
 
 				half4 GILighting = half4(0,0,0,0);
-				GILighting.xyz = linearColor.xyz;
+				GILighting.xyz = linearColor.xyz ;
+
 				GILighting.w = AO;//MixMap .z ao
 
 				half ssao = 1;
@@ -206,6 +213,7 @@
 				GILighting.a *= saturate(dot(diffLighting.rgb,half3(0.3,0.59,0.11)));
 				half3 SunLighting = saturate(NdotL) * SunColor * shadow;
 				diffLighting =  diffLighting + SunLighting;
+								
 				GILighting.a = min(GILighting.a, ssao);
 
                 //Sun Specular & Env Specular
@@ -224,6 +232,7 @@
 				float VirtualNdotL = clamp (dot (VirtualLitDir, normalVec), 0.0, 1.0);
 				VirtualNdotL = 0.444 + VirtualNdotL * 0.556;
 				float3 virtualLit = cVirtualLitColor.xyz * cEmissionScale.w * VirtualNdotL;
+
 				virtualLit = lerp(virtualLit, virtualLit * userData1.z * 2, SSSMask);
 				diffLighting +=virtualLit;
 
@@ -237,27 +246,14 @@
 				half3 virtualSpec = 0.25 * m2 / d;
 
 				half3 VirtualSpecColor = virtualSpec * virtualLit * EnvBRDF;
-
-				//Apply Fog
-				float temp31 = clamp ((i.worldPos.y * FogInfo.z + FogInfo.w), 0.0, 1.0);
-				float fHeightCoef = temp31*temp31;
-				fHeightCoef*=fHeightCoef;
-				float fog = 1.0 - exp(-max (0.0, viewDir - FogInfo.x)* max (FogInfo.y * fHeightCoef, 0.1 * FogInfo.y));
-				fog *= fog;
-				
-
-
-				/*half3 fogColor = (FogColor2.xyz * clamp (viewDir.y * 5.0 + 1.0, 0.0, 1.0)) + FogColor.xyz;
-				half VdotL =  clamp (dot (-viewDir, lightDir), 0.0, 1.0);
-				fogColor =   fogColor + (FogColor3 * VdotL  * VdotL).xyz;
-				*/
 				float3 Color = Spec + VirtualSpecColor + diffLighting * DiffuseColor;
 
-			/*	Color = Color * (1.0 - fog) + (Color.xyz * fog + fogColor) * fog;
-				Color = Color* EnvInfo.z;
-				Color =  clamp (Color.xyz, float3(0.0, 0.0, 0.0), float3(4.0, 4.0, 4.0));*/
+				//Apply Fog
+				float VdotL = saturate(dot(-viewDir, lightDir));
+				Color = ApplyFogColor(Color, i.worldPos.xyz, viewDir.xyz, VdotL, EnvInfo.z);
 
 				//Liner to Gamma
+
 				Color.xyz = Color.xyz / (Color.xyz * 0.9661836 + 0.180676);
 
 

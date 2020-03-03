@@ -41,6 +41,7 @@
 
 			Blend SrcAlpha OneMinusSrcAlpha
 			ZTest On
+			ZWrite Off
 			CGPROGRAM
 			//#pragma multi_compile_fwdbase
 			#pragma multi_compile __ PointCloudEnable
@@ -87,7 +88,8 @@
 					float4 (0.3423186,	0.4456023,	0.4700097,	1),
 					float4 (0.6410592,	0.5083932,	0.4235953,	1)
 				};
-				
+								//User Data
+				half3 userData1 = half3(0.3,0.3,1.1); // X : Sunlight Y：GI Z：VirtualLight
 				// sample the texture
 				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));
 				float Alpha = texBase.a;
@@ -134,8 +136,7 @@ return texBase;
 				float atten = LIGHT_ATTENUATION(i);	
 				shadow = atten;
 
-				//User Data
-				half3 userData1 = half3(0.3,0.3,1.1); // X : Sunlight Y：GI Z：VirtualLight
+
 
 				//GI :Messiah引擎GI数据还原
 				half4 GILighting = half4(0,0,0,1);
