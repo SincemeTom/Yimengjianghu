@@ -248,8 +248,9 @@
 				float3 env_ref = GetIBLIrradiance(0, reflectDir) * (F + 0.1);
 				
 				float3 env_ref2 = GetIBLIrradiance(roughness, reflectDir) * EnvBRDF;
+				float3 EnvSpec = 0.5 * (env_ref2 + env_ref) *  dot(GILighting.rgb, float3(0.3,0.59,0.11));
 
-				float3 Specular = DirectSpecular + VirtualSpecular + 0.5 * (env_ref2 + env_ref) *  dot(GILighting.rgb, float3(0.3,0.59,0.11));
+				float3 Specular = DirectSpecular + VirtualSpecular + EnvSpec;
 
 				Specular += LightingPS_SPEC(i.worldPos.xyz, refNormal, viewDir, refNdotV, EnvBRDF * 2,saturate(roughness),lighting.rgb);
  				Specular *= refMask.g;//睫毛阴影
@@ -257,7 +258,6 @@
 
 				//Final Color
 				float3 FinalColor = Specular + lighting * DiffuseColor.rgb;
-
 				//Apply Fog
 				
 				float3 Color = FinalColor;

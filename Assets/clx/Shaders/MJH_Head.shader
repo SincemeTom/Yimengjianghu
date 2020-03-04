@@ -106,6 +106,7 @@
 				//Sample Textures
 				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv.xy, 0, BaseMapBias));//BaseColor.w save Roughness
 				fixed4 texM = tex2D (_MixTex, i.uv.xy);//Z :AO, W: vertex ColorW
+				
 				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv.xy, 0, NormalMapBias));//W 毛孔
 				
 				texN.g = 1 - texN.g;
@@ -119,7 +120,7 @@
 			
 
 				Roughness = GetRoughnessFromRoughness(Roughness, i.world_normal.xyz);
-
+				
 				half vertexColorw = 1.0 - texM.w;
 				
 				//AO
@@ -198,7 +199,7 @@
 				float3 SSS_SunIrradiance = lerp(SSS_Lut2.xyz * SSS_Lut1.xyz, NdotL * shadow, vertexColorw) * SunIrradiance * AO;
 
 				float3 DiffuseIrradiance = PointCloudIrradiance + RefractionIrradiance + VirtualLitIrradiance + SSS_SunIrradiance;
-		
+
 				//Specular
 				float RoughnessLayer1 = Roughness;
 				float RoughnessLayer2 = Roughness * _RoughnessOffset;
@@ -243,7 +244,6 @@
 				float3 Diffuse = DiffuseColor * DiffuseIrradiance;
 				float3 Out = Diffuse + SpecRadiance;
 
-				
 				float3 Color = Out;
 
 				//Apply Fog

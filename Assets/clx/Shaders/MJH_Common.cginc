@@ -128,7 +128,7 @@ half3 EnvBRDFApprox( half3 SpecularColor, half Roughness, half NoV )
     return SpecularColor * AB.x + AB.y;
 }
 
-float SpecBRDFPbr(in float Roughness1,in float Roughness2,in float3 L,in float3 V,in float3 N,in float3 SpecularColor)
+float3 SpecBRDFPbr(in float Roughness1,in float Roughness2,in float3 L,in float3 V,in float3 N,in float3 SpecularColor)
 {
     float3 H = normalize(L+V);
     float NoH = saturate(dot(N,H));
@@ -192,16 +192,30 @@ half3 GetIBLIrradiance(in half Roughness,in float3 R)
     R.xy /= (R.z * fSign2 + 1);
     R.xy = R.xy * half2(0.25,-0.25) + 0.25 + 0.5 * fSign;				
     half4 srcColor;								
-    srcColor = CastHalf(tex2Dlod (_EnvMap, half4(R.xy, 0, level)));
+    srcColor = tex2Dlod (_EnvMap, half4(R.xy, 0, level));
     sampleEnvSpecular= srcColor.rgb * (srcColor.a * srcColor.a * 16.0);				
     sampleEnvSpecular *= EnvStrength * EnvInfo.w * 10;
+    //return srcColor.rgb;
     return sampleEnvSpecular;
 
+}
+half3 GetIBLIrradiance(in half Roughness,in float3 R,in half x)
+{			
+    half3 sampleEnvSpecular=half3(0,0,0);
+    half MIP_ROUGHNESS=0.17;
+    half level=Roughness / MIP_ROUGHNESS;
+    half fSign= R.z > 0;
+    half fSign2 = fSign * 2 - 1;
+    R.xy /= (R.z * fSign2 + 1);
+    R.xy = R.xy * half2(0.25,-0.25) + 0.25 + 0.5 * fSign;				
+    half4 srcColor;								
+    srcColor = tex2Dlod (_EnvMap, half4(R.xy, 0, level));
+    return srcColor;
 }
 half3 IBL_Specular(in half Roughness,in float3 R, in half3 SpecularColor, in half4 GILighting)
 {
     half3 IBLSpecular = GetIBLIrradiance(Roughness, R);
-
+//return IBLSpecular;
     IBLSpecular*= GILighting.w;
     return SpecularColor * IBLSpecular;
 }
@@ -382,6 +396,27 @@ float3 ApplyFogColor(float3 Color, float3 WorldPos, float3 V,float VoL, float Fo
     float4 FogColor =  float4(2.31,2.7,3,0.3);
     float4 FogColor2 = float4(0,0,0,0.2742319);
     float4 FogColor3 = float4(0,0,0,0.2869582);
+
+    float tmp = saturate(WorldPos.y * FogInfo.z + FogInfo.w);
+    float fHeightCoef = tmp * tmp;
+    fHeightCoef *= fHeightCoef;
+    float fog = 1.0 - exp(-max (0.0, V - FogInfo.x)* max (FogInfo.y * fHeightCoef, 0.1 * FogInfo.y));
+
+    float3 fogColor = FogColor2.xyz * saturate(V.y * 5.0 + 1.0) + FogColor.xyz;
+    fogColor += FogColor3.rgb * VoL * VoL;
+    //return fog.xxx;
+    float3 col = lerp(Color.rgb, Color.rgb * (1 - fog) + fogColor.rgb, fog);
+    col = clamp(col, float3(0,0,0),float3(4,4,4));
+    col *= FogEnvInfo;
+    col = col * half3(FogColor.w,FogColor2.w,FogColor3.w);
+    return col; 
+}
+float3 ApplySceneFogColor(float3 Color, float3 WorldPos, float3 V,float VoL, float FogEnvInfo)
+{
+    float4 FogInfo  =  float4(70,0.008,-0.00316,0.3555721);	
+    float4 FogColor =  float4(0.259,0.329,0.623,1.102886);
+    float4 FogColor2 = float4(0,0,0,0.77135);
+    float4 FogColor3 = float4(0.5,0.35,0.095,0.69374);
 
     float tmp = saturate(WorldPos.y * FogInfo.z + FogInfo.w);
     float fHeightCoef = tmp * tmp;

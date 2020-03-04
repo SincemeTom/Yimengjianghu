@@ -191,23 +191,14 @@
             #endif
 
 
-                half3 bakeLighting = lightMapRaw.xyz * (AO * Luma / LogL) + SunColor.xyz * clamp(NdotL * shadow, 0.0, 1.0);
+                half3 bakeLighting = lightMapRaw.xyz * (AO * Luma / LogL);
+                half3 SunLighting =  SunColor.xyz * clamp(NdotL * shadow, 0.0, 1.0);
 
                 //Sun Specular
                 half3 EnvBRDF = EnvBRDFApprox(SpecularColor, roughness, NdotV);
 
-                float3 Reflect = viewDir - 2.0 * dot(normalVec , viewDir) * normalVec;
-				half lod = roughness / 0.17;
-				half fSign = half(reflectDir.z > 0);
-				half temp =  fSign * 2.0 - 1.0;
-				half2 reflectuv = reflectDir.xy / (reflectDir.z * temp + 1.0);
-				reflectuv = reflectuv * half2(0.25, -0.25) + 0.25 + 0.5 * fSign;
-				
-				fixed4 srcColor = tex2Dlod (_EnvMap, half4(reflectuv.xy, 0, 0));
-
-                half3 EnvSpecular = srcColor.xyz * srcColor.w * srcColor.w * 16.0 * EnvStrength ;
-				EnvSpecular = EnvSpecular * GILighting.w * EnvInfo.w * 10.0;
-
+                half3 EnvSpecular = IBL_Specular(roughness, reflectDir.xyz, EnvBRDF,GILighting);
+//return half4(EnvSpecular.xyz,1);
                 fixed3 H = normalize(viewDir + lightDir);
 				fixed VdotH = clamp(dot(viewDir,H),0,1);
 				fixed NdotH = clamp(dot(normalVec,H),0,1);
@@ -220,10 +211,9 @@
 
                 float3 sunSpec = EnvBRDF * D;
                 sunSpec = sunSpec * SunColor.xyz * clamp(NdotL * shadow, 0, 1);
-                float3 SpecColor = EnvBRDF * EnvSpecular + sunSpec;                
-                float3 DiffColor = bakeLighting * DiffuseColor;
+                float3 SpecColor = EnvSpecular + sunSpec;                
+                float3 DiffColor = (bakeLighting  + SunLighting)* DiffuseColor;
                 float3 OutColor = SpecColor + DiffColor;
-
 
 				// _EmissionMap
 				half3 EmissionMap =  tex2D(_EmissionMap, i.uv.xy).xyz;
@@ -239,7 +229,7 @@
                 
                 //Apply Fog
 				float VdotL = saturate(dot(-viewDir, lightDir));
-				OutColor = ApplyFogColor(OutColor, i.worldPos.xyz, viewDir.xyz, VdotL, EnvInfo.z);
+				OutColor = ApplySceneFogColor(OutColor, i.worldPos.xyz, viewDir.xyz, VdotL, EnvInfo.z);
 
                 //Linear to Gamma
 				OutColor.xyz = OutColor.xyz / (OutColor.xyz * 0.9661836 + 0.180676);

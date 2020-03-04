@@ -471,7 +471,7 @@ vertical-align:1px;
 <h1 id="-">《一梦江湖》渲染分析</h1>
 <h2 id="-">前言</h2>
 <p>《一梦江湖》原名《楚留香》，在去IP化中渲染质量同时也进行了升级，为当前手游市场上同类型游戏渲染的代表作。本文从渲染管线，阴影，光照，GI，后处理等多个角度对本游戏PC和移动两个版本，结合Demo实例具体分析。（图为Demo还原角色）</p>
-<p><img src="images/image.jpg" alt=""></p>
+<p><img src="images/c_lit.jpg" alt=""></p>
 <h2 id="-">准备</h2>
 <h4 id="-">解析工具</h4>
 <ul>
@@ -480,14 +480,13 @@ vertical-align:1px;
 <h4 id="demo-">Demo 还原平台</h4>
 <ul>
 <li>Unity 2018.3.5 </li></ul>
-<p>为了通用性，并未使用SRP，而采样默认渲染管线。</p>
-<h2 id="-">渲染分析</h2>
-<h3 id="-">渲染管线</h3>
+<p>研究过程中对游戏角色主要材质着色器在Unity3D引擎进行还原，为了通用性，并未使用SRP，而采样默认渲染管线。</p>
+<h2 id="-">渲染管线分析</h2>
 <p><img src="images/renderPath.jpg" alt=""></p>
-<p>《一梦江湖》PC渲染流程如上图，为前向渲染管线。移动端中不绘制AO。且移动平台线性空间转Gamma空间在Opaque,Mask，Transparent三个阶段中执行；而PC中G在Combine Bloom阶段。</p>
-<p>在绘制Depth阶段，写入深度，同时角色单独写入模板。在Opaque和Mask阶段ZTest Func 为Equal.</p>
+<p>《一梦江湖》PC渲染流程如上图，为前向渲染管线。移动端中不绘制AO。且移动平台线性空间转Gamma空间在Opaque,Mask，Transparent三个阶段中执行；而PC中颜色矫正在Combine Bloom阶段。</p>
+<p>在绘制Depth阶段，写入深度，同时角色单独写入模板。在Opaque阶段ZTest Func 为Equal.</p>
 <p>Transparent 绘制前先把ColorRT拷贝出来，然后先绘制折射效果的如水面，角色眼睛角膜等对象，然后再绘制其余半透明渲染对象。</p>
-<h3 id="-ao">阴影和AO</h3>
+<h2 id="-ao">阴影和AO</h2>
 <p>《一梦江湖》Shadowmap渲染在3张1024的RT。其中角色Shadow每帧都更新，单独绘制在一张RT上，在光照阶段采样。场景Shadow近处和远处物体分别绘制，在ScreenSpaceShadow阶段分两个Pass采样计算SSShadow。</p>
 <table>
 <thead>
@@ -522,7 +521,92 @@ vertical-align:1px;
 </tr>
 </tbody>
 </table>
-<h3 id="-">角色渲染</h3>
+<h2 id="-">光照</h2>
+<p>《一梦江湖》场景和角色受光照不同，主要差别在场景受烘焙GI影响，角色额外受动态GI和一个摄像机方向的虚拟光影响。</p>
+<h3 id="-">场景光照分析</h3>
+<p>场景光照主要由以下几部分构成：</p>
+<ul>
+<li>Directional light(Sun)</li><li>Bake GI</li><li>环境光反射(IBL)</li></ul>
+<table>
+<thead>
+<tr>
+<th>Lighting</th>
+<th>Sun Diffuse</th>
+<th>Sun Specular</th>
+<th>Bake GI Diffuse</th>
+<th>Env Specular</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="images/sceneColor.jpg" alt=""></td>
+<td><img src="images/s_sunlighting.jpg" alt=""></td>
+<td><img src="images/s_sunspec.jpg" alt=""></td>
+<td><img src="images/s_bakelighting.jpg" alt=""></td>
+<td><img src="images/s_envspec.jpg" alt=""></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Directional Light</strong></p>
+<p>  Lambert漫反射光照模型，GGX BRDF高光模型</p>
+<p><strong>环境光反射</strong></p>
+<p>  环境光压缩在一张256 * 256 的纹理上，如图：</p>
+<p>  <img src="images/envTexture.jpg" alt=""></p>
+<p>  采样函数如下：</p>
+<pre><code>half3 GetIBLIrradiance(in half Roughness,in float3 R)
+{            
+    half3 sampleEnvSpecular=half3(0,0,0);
+    half MIP_ROUGHNESS=0.17;
+    half level=Roughness / MIP_ROUGHNESS;
+    half fSign= R.z &gt; 0;
+    half fSign2 = fSign * 2 - 1;
+    R.xy /= (R.z * fSign2 + 1);
+    R.xy = R.xy * half2(0.25,-0.25) + 0.25 + 0.5 * fSign;                
+    half4 srcColor;                                
+    srcColor = tex2Dlod (_EnvMap, half4(R.xy, 0, level));
+    sampleEnvSpecular= srcColor.rgb * (srcColor.a * srcColor.a * 16.0);    
+    return sampleEnvSpecular;
+}            
+</code></pre><h3 id="-">角色光照分析</h3>
+<ul>
+<li>Directional light</li><li>环境光(IBL)</li><li>摄像机方向上的 Virtual Light</li><li>Dynamic GI</li></ul>
+<table>
+<thead>
+<tr>
+<th>Sun Diffuse</th>
+<th>Sun Specular</th>
+<th>Virtual Lit Diffuse</th>
+<th>Virtual Lit Specular</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="images/c_sunlighting.jpg" alt=""></td>
+<td><img src="images/c_sunspec.jpg" alt=""></td>
+<td><img src="images/c_virtualLit.jpg" alt=""></td>
+<td><img src="images/c_virtualSpec.jpg" alt=""></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>GI Diffuse</th>
+<th>Env Specular</th>
+<th>Skin Refraction</th>
+<th>Lighting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="images/c_giLit.jpg" alt=""></td>
+<td><img src="images/c_EnvSpec.jpg" alt=""></td>
+<td><img src="images/c_refraction.jpg" alt=""></td>
+<td><img src="images/c_lit.jpg" alt=""></td>
+</tr>
+</tbody>
+</table>
+<h2 id="-">角色渲染</h2>
 <p>《一梦江湖》角色分为 身体，头部，头发，眼球（左右），角膜和泪腺，眉毛，睫毛等几个部分。其中身体，头部，眼球为不透明渲染；头发前后分别是镂空渲染和半透明渲染；眉毛和睫毛为半透明渲染，角膜和泪腺为半透明折射渲染。<br>其模型三角面数如下：</p>
 <table>
 <thead>
@@ -563,6 +647,39 @@ vertical-align:1px;
 </tr>
 </tbody>
 </table>
+<h3 id="body">Body</h3>
+<p>《一梦江湖》角色身体皮肤和衣服并未分开，用Mask贴图区分开来，采用统一的光照。纹理大小为2048。</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Base Color</th>
+<th>Normal</th>
+<th>Mask</th>
+<th>Mix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Texture</td>
+<td><img src="images/body_color.jpg" alt=""></td>
+<td><img src="images/body_normal.jpg" alt=""></td>
+<td><img src="images/body_mask.jpg" alt=""></td>
+<td><img src="images/body_mix.jpg" alt=""></td>
+</tr>
+<tr>
+<td>Size</td>
+<td>1024</td>
+<td>512</td>
+<td>512</td>
+<td>1024</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Normal 纹理A通道存储SSSmask.用于区分皮肤和其他部分</li><li>BaseColor RGB为漫反射颜色，A通道为Mask</li><li>Mix 纹理 R通道为Smoothness，G通道为 Metallic，B 通道为AO</li><li>Mask 存储mask值区分布料和其他</li><li>受到的光照影响有:Directional Light，摄像机方向的 Virtual Directional Light, Dynamic GI，环境光。</li></ul>
+<h3 id="head">Head</h3>
+<p>角色头部渲染采用Pre-intergrated Skin Shading</p>
 
 </body>
 </html>

@@ -60,7 +60,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: fcd7a220790e60746b7eaafc0a8ff507, type: 3}
+        m_Texture: {fileID: 2800000, guid: 4824c701cdc63904aa51b6436d70bb43, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -68,11 +68,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MixTex:
-        m_Texture: {fileID: 2800000, guid: a2b940f8531b74c47945a10b109f48fa, type: 3}
+        m_Texture: {fileID: 2800000, guid: 49a7c282f18864c4ea48cbd6f6e5ed5d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalTex:
-        m_Texture: {fileID: 2800000, guid: 38533db21dd57144693d0a3a920b37da, type: 3}
+        m_Texture: {fileID: 2800000, guid: abe7fce1c5ad7dd479cc7339779fcb65, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -114,7 +114,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RoughnessOffset: 0.708
+    - _RoughnessOffset: 0.76
     - _SSSIntensity: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1

@@ -184,7 +184,7 @@
 				sceneColor.xyz *=  (1 - texBase.a);
 
 				sceneColor.xyz += FinalColor;
-				sceneColor.xyz *= AO * EnvInfo.z;
+				sceneColor.xyz *= AO;
 
 				float3 Color = sceneColor.xyz;
 				//Final Color

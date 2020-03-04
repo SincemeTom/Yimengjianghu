@@ -1,4 +1,4 @@
-﻿Shader "MJH/MJH_Hair_Mask"
+﻿Shader "MJH/MJH_Hair_Trans"
 {
 	Properties
 	{
@@ -252,9 +252,10 @@
 
 				half3 VirtualSpecColor = virtualSpec * virtualLit * EnvBRDF;
 				
-				
+
 				//float3 Color = Emission.xyz;
-				float3 Color = Spec + VirtualSpecColor + diffLighting * DiffuseColor + Emission.xyz;
+				float3 Color = Spec + VirtualSpecColor + diffLighting * DiffuseColor +  Emission.xyz;
+
 				//Apply Fog
 				float VdotL = saturate(dot(-viewDir, lightDir));
 				Color = ApplyFogColor(Color, i.worldPos.xyz, viewDir.xyz, VdotL, EnvInfo.z);
