@@ -69,13 +69,7 @@
 			half4 cEmissionScale;
 			float cVirtualColorScale;
 			
-			float4 _ColorTransform0;
-			float4 _ColorTransform1;
-			float4 _ColorTransform2;
 
-			float4 _ColorTransform3;
-			float4 _ColorTransform4;
-			float4 _ColorTransform5;
 
 			fixed4 frag (v2f i) : SV_Target
 			{
@@ -95,10 +89,10 @@
 				half3 userData1 = half3(0.5,0.5,0.5);
 
 				// sample the texture
-				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));
-				fixed4 texM = tex2D (_MixTex, i.uv);				
-				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv, 0, NormalMapBias));
-				half texMask = tex2D(_MaskMap, i.uv);
+				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv.xy, 0, BaseMapBias));
+				fixed4 texM = tex2D (_MixTex, i.uv.xy);				
+				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv.xy, 0, NormalMapBias));
+				half texMask = tex2D(_MaskMap, i.uv.xy);
 				texN.y = 1 - texN.y;
 
 
@@ -108,13 +102,9 @@
 				//BaseColor 
                 half SSSMask = 1 - texN.w;
 				half3 BaseColor = texBase.rgb * texBase.rgb;
-				half3 baseColorData = BaseColor;
 
+				BaseColor = ApplyColorTransform(BaseColor, SSSMask, mask);
 
-				//ColorTransform
-
-				BaseColor = lerp(BaseColor,saturate(half3(dot(_ColorTransform0,baseColorData),dot(_ColorTransform1,baseColorData),dot(_ColorTransform2,baseColorData))),mask);
-				BaseColor = lerp(BaseColor,saturate(half3(dot(_ColorTransform3,baseColorData),dot(_ColorTransform4,baseColorData),dot(_ColorTransform5,baseColorData))),SSSMask);
 
 
 				//Normal

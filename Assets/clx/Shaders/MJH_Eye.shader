@@ -22,13 +22,14 @@
 		[HDR]cVirtualLitColor ("cVirtualLitColor", Color) = (1, 0.72, 0.65, 0)
 		cVirtualLitDir ("cVirtualLitDir", Vector) = (-0.5, 0.114 , 0.8576, 0.106)
 		[HDR]_EyeColor("_EyeColor", Color) = (0.1973174,0.1973174,0.1973174,1)
-		ColorScale("Color Scale", Vector) = (0.89, 0.89, 0.89, 0)
-		ColorBias("Color Bias", Vector) = (-0.001, -0.001, 0, 0)
-		FogInfo("Fog Info", Vector) = (70,0.008,-0.003160504,0.3555721)
 
-        FogColor("FogInfo", Color) = (0.2590002, 0.3290003, 0.623, 1.102886) 
-        FogColor2("FogInfo2", Color) = (0,0,0,0.7713518)
-        FogColor3("FogInfo3", Color) = (0.5, 0.35, 0.09500044, 0.6937419 )
+		_ColorTransform0("ColorTransform0", Vector) = (0.897 ,0,	0,	0)
+		_ColorTransform1("ColorTransform1", Vector) = (0.897 ,0,	0,	0)
+		_ColorTransform2("ColorTransform2", Vector) = (0.897 ,0,	0,	0)
+
+		_ColorTransform3("ColorTransform3", Vector) = (1, 0, 0, 0)
+		_ColorTransform4("ColorTransform4", Vector) = (0, 1, 0, 0)
+		_ColorTransform5("ColorTransform5", Vector) = (-0.001,-0.001,1,0)
 
 	}
 	SubShader
@@ -68,9 +69,7 @@
 			half4 cVirtualLitColor;
 			half4 cEmissionScale;
 			float cVirtualColorScale;
-			
-			float4 ColorScale;
-			float4 ColorBias;
+
 			float4 _EyeColor;
 
 
@@ -89,11 +88,11 @@
 				};
 				half3 userData1 = half3(0.5,0.5,0.5);
 				// sample the texture
-				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));
-				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv, 0, NormalMapBias));
+				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv.xy, 0, BaseMapBias));
+				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv.xy, 0, NormalMapBias));
 				texN.y = 1 - texN.y;
                 half4 unpackNormal = MJH_UnpackNormal(texN);
-				half4 texMask = tex2D(_MaskMap, i.uv);
+				half4 texMask = tex2D(_MaskMap, i.uv.xy);
 				half3 refMask = texMask.xyz;
 
 				half mask = refMask.b;
@@ -103,12 +102,8 @@
                 half SSSMask = 1 - unpackNormal.w;
 				half3 alpha = texBase.a;
 				half3 BaseColor = texBase.rgb * texBase.rgb;
-				half3 baseColorData = BaseColor;
-				half3 scaleBaseColor = baseColorData * ColorScale.xyz;//Color Transform0,1,2
-				BaseColor = BaseColor * (1.0 - mask) + clamp(scaleBaseColor, 0, 1) * mask;
+				BaseColor = ApplyColorTransform(BaseColor, SSSMask, mask);
 
-				half3 biasColor = baseColorData + ColorBias.xyz;//Color Transform 3,4,5
-				BaseColor = BaseColor * (1 - SSSMask) + clamp(biasColor, 0, 1) * SSSMask;
 
 				float3 SpecularColor=float3(0.04,0.04,0.04);
 

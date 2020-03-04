@@ -104,9 +104,9 @@
 				};
 				half3 userData1 = half3(0.5,0.5,0.5);
 				//Sample Textures
-				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));//BaseColor.w save Roughness
-				fixed4 texM = tex2D (_MixTex, i.uv);//Z :AO, W: vertex ColorW
-				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv, 0, NormalMapBias));//W 毛孔
+				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv.xy, 0, BaseMapBias));//BaseColor.w save Roughness
+				fixed4 texM = tex2D (_MixTex, i.uv.xy);//Z :AO, W: vertex ColorW
+				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv.xy, 0, NormalMapBias));//W 毛孔
 				
 				texN.g = 1 - texN.g;
 				float Curvature = texM.g;

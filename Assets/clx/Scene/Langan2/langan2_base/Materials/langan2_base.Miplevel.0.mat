@@ -102,4 +102,10 @@ Material:
     - Paramters: {r: 0, g: 0, b: 0, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorTransform0: {r: 1, g: 0, b: 0, a: 0}
+    - _ColorTransform1: {r: 0, g: 1, b: 0, a: 0}
+    - _ColorTransform2: {r: 0, g: 0, b: 1, a: 0}
+    - _ColorTransform3: {r: 1, g: 0, b: 0, a: 0}
+    - _ColorTransform4: {r: 0, g: 1, b: 0, a: 0}
+    - _ColorTransform5: {r: 0, g: 0, b: 1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}

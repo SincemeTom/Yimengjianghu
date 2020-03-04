@@ -11,7 +11,7 @@ struct appdata {
 struct v2f
 {
     float4 pos : SV_POSITION;
-    float2 uv : TEXCOORD0;
+    float4 uv : TEXCOORD0;
     float4 worldPos   : TEXCOORD1;
     half3 world_normal  : TEXCOORD2;
     half3 world_tangent : TEXCOORD3;
@@ -27,11 +27,18 @@ struct v2f
 sampler2D _MainTex;
 float4 _MainTex_ST;
 
+float4 LightmapUVTransform; //0.499023, 0.499023, 0.000488281 0.000488281
+
 v2f vert (appdata v)
 {
     v2f o = (v2f)0;
     o.pos = UnityObjectToClipPos(v.vertex);
-    o.uv = TRANSFORM_TEX(v.texcoord.xy, _MainTex);
+    o.uv.xy = TRANSFORM_TEX(v.texcoord.xy, _MainTex);
+#ifdef _LightMapEnable
+    o.uv.zw = v.texcoord1.xy * LightmapUVTransform.xy + LightmapUVTransform.zw;
+#else
+    o.uv.zw = half2(0,0);
+#endif
     o.worldPos = mul( unity_ObjectToWorld, v.vertex );
     float3 normal  = v.normal;
     half3 wNormal = UnityObjectToWorldNormal(normal);  
@@ -53,11 +60,27 @@ sampler2D _EnvMap;
 half EnvStrength;
 float4 EnvInfo;
 float4 ShadowColor;
-//float4 FogInfo;
 
-//float4 FogColor; // (0.2590002, 0.3290003, 0.623, 1.102886) 
-//float4 FogColor2; //(0,0,0,0.7713518)
-//float4 FogColor3; //(0.5, 0.35, 0.09500044, 0.6937419 )
+float4 _ColorTransform0;
+float4 _ColorTransform1;
+float4 _ColorTransform2;
+
+float4 _ColorTransform3;
+float4 _ColorTransform4;
+float4 _ColorTransform5;
+
+
+
+float3 ApplyColorTransform(float3 InBaseColor, float SSSMask, float mask)
+{
+    float3 baseColorData = InBaseColor;
+    //ColorTransform
+    float3 BaseColor = InBaseColor;
+    BaseColor = lerp(BaseColor,saturate(half3(dot(_ColorTransform0,baseColorData),dot(_ColorTransform1,baseColorData),dot(_ColorTransform2,baseColorData))),mask);
+    BaseColor = lerp(BaseColor,saturate(half3(dot(_ColorTransform3,baseColorData),dot(_ColorTransform4,baseColorData),dot(_ColorTransform5,baseColorData))),SSSMask);
+    return BaseColor;
+}
+
 fixed3 lessThan(float3 a, float3 b)
 {
     fixed3 r = fixed3(1,1,1);
@@ -367,6 +390,7 @@ float3 ApplyFogColor(float3 Color, float3 WorldPos, float3 V,float VoL, float Fo
 
     float3 fogColor = FogColor2.xyz * saturate(V.y * 5.0 + 1.0) + FogColor.xyz;
     fogColor += FogColor3.rgb * VoL * VoL;
+    //return fog.xxx;
     float3 col = lerp(Color.rgb, Color.rgb * (1 - fog) + fogColor.rgb, fog);
     col = clamp(col, float3(0,0,0),float3(4,4,4));
     col *= FogEnvInfo;

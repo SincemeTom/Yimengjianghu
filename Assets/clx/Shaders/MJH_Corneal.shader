@@ -92,12 +92,12 @@
 				 // X : Sunlight Y：GI Z：VirtualLight				
 				half3 userData1 = half3(0.5,0.5,0.5);
 				// sample the texture
-				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));
+				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv.xy, 0, BaseMapBias));
 
 				half4 sceneColor = tex2Dproj(_BackgroundTexture, i.screen_uv);
 
 				//Sample Mix texture
-				half4 texMask = tex2D(_MaskMap, i.uv);
+				half4 texMask = tex2D(_MaskMap, i.uv.xy);
 				float refAlpha = texMask.a;
 				float AO = texMask.r;
 				float refmask = texMask.g;

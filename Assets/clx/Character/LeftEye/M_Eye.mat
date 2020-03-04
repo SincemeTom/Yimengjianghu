@@ -103,8 +103,14 @@ Material:
     - FogInfo: {r: 0, g: 0, b: 0, a: 0}
     - ShadowColor: {r: 0.1726, g: 1, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorTransform0: {r: 0.0897, g: 0, b: 0, a: 0}
+    - _ColorTransform1: {r: 0.0897, g: 0, b: 0, a: 0}
+    - _ColorTransform2: {r: 0.0897, g: 0, b: 0, a: 0}
+    - _ColorTransform3: {r: 1, g: 0, b: 0, a: 0}
+    - _ColorTransform4: {r: 0, g: 1, b: 0, a: 0}
+    - _ColorTransform5: {r: 0, g: 0, b: 1, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EyeColor: {r: 0.1973174, g: 0.1973174, b: 0.1973174, a: 1}
     - cEmissionScale: {r: 1, g: 1, b: 1, a: 1}
     - cVirtualLitColor: {r: 2.5, g: 2.5, b: 2.5, a: 0}
-    - cVirtualLitDir: {r: 0, g: 0, b: 1, a: 0}
+    - cVirtualLitDir: {r: 0.35, g: 0.14, b: 1, a: 1}

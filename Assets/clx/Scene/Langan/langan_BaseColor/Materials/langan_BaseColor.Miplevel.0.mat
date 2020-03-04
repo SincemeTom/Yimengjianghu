@@ -58,3 +58,9 @@ Material:
     - LightmapUVTransform: {r: 0.499023, g: 0.499023, b: 0.000488281, a: 0.000488281}
     - Paramters: {r: 0, g: 0, b: 0, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorTransform0: {r: 1, g: 0, b: 0, a: 0}
+    - _ColorTransform1: {r: 0, g: 1, b: 0, a: 0}
+    - _ColorTransform2: {r: 0, g: 0, b: 1, a: 0}
+    - _ColorTransform3: {r: 1, g: 0, b: 0, a: 0}
+    - _ColorTransform4: {r: 0, g: 1, b: 0, a: 0}
+    - _ColorTransform5: {r: 0, g: 0, b: 1, a: 0}

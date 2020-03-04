@@ -85,9 +85,9 @@
 				half3 userData1 = half3(0.5,0.5,0.5);
 
 				// sample the texture
-				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));
-				fixed4 texM = tex2D (_MixTex, i.uv);//X: smooth, Y : Metallic, Z: 
-				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv, 0, NormalMapBias));
+				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv.xy, 0, BaseMapBias));
+				fixed4 texM = tex2D (_MixTex, i.uv.xy);//X: smooth, Y : Metallic, Z: 
+				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv.xy, 0, NormalMapBias));
 				texN.y = 1 - texN.y;
 				half Alpha = texBase.w;
 

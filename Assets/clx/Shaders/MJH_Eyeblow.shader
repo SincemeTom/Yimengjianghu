@@ -91,7 +91,7 @@
 								//User Data
 				half3 userData1 = half3(0.3,0.3,1.1); // X : Sunlight Y：GI Z：VirtualLight
 				// sample the texture
-				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv, 0, BaseMapBias));
+				fixed4 texBase = tex2Dbias (_MainTex, half4(i.uv.xy, 0, BaseMapBias));
 				float Alpha = texBase.a;
 return texBase;
 

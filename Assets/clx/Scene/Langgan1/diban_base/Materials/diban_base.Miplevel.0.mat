@@ -92,7 +92,7 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - EnvInfo: {r: 0.03, g: 0.66, b: 1, a: 0.4}
+    - EnvInfo: {r: 0, g: 0.5, b: 1, a: 0.5}
     - FogColor: {r: 0.2590002, g: 0.3290003, b: 0.623, a: 1.102886}
     - FogColor2: {r: 0, g: 0, b: 0, a: 0.7713518}
     - FogColor3: {r: 0.5, g: 0.35, b: 0.09500044, a: 0.6937419}
@@ -102,4 +102,10 @@ Material:
     - Paramters: {r: 0, g: 0, b: 0, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorTransform0: {r: 1, g: 0, b: 0, a: 0}
+    - _ColorTransform1: {r: 0, g: 1, b: 0, a: 0}
+    - _ColorTransform2: {r: 0, g: 0, b: 1, a: 0}
+    - _ColorTransform3: {r: 1, g: 0, b: 0, a: 0}
+    - _ColorTransform4: {r: 0, g: 1, b: 0, a: 0}
+    - _ColorTransform5: {r: 0, g: 0, b: 1, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
