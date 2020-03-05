@@ -18,9 +18,9 @@
 
 		EnvInfo ("EnvInfo", Vector) = (0,0.01,1,2.5)
 		
-		cEmissionScale ("cEmissionScale", Vector) = (1,1,1,1)
-		[HDR]cVirtualLitColor ("cVirtualLitColor", Color) = (1, 0.72, 0.65, 0)
-		cVirtualLitDir ("cVirtualLitDir", Vector) = (-0.5, 0.114 , 0.8576, 0.106)
+		cEmissionScale ("EmissionScale", Vector) = (1,1,1,1)
+		[HDR]cVirtualLitColor ("VirtualLitColor", Color) = (1, 0.72, 0.65, 0)
+		cVirtualLitDir ("VirtualLitDir", Vector) = (-0.5, 0.114 , 0.8576, 0.106)
 
 		_ColorTransform0("ColorTransform0", Vector) = (0.897 ,0,	0,	0)
 		_ColorTransform1("ColorTransform1", Vector) = (0.897 ,0,	0,	0)

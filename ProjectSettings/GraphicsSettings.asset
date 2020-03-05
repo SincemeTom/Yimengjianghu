@@ -77,7 +77,7 @@ GraphicsSettings:
       useReflectionProbeBlending: 0
       useHDR: 1
       useDetailNormalMap: 0
-      useCascadedShadowMaps: 1
+      useCascadedShadowMaps: 0
       prefer32BitShadowMaps: 1
       enableLPPV: 0
       useDitherMaskForAlphaBlendedShadows: 0

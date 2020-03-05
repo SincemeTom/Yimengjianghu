@@ -199,19 +199,7 @@ half3 GetIBLIrradiance(in half Roughness,in float3 R)
     return sampleEnvSpecular;
 
 }
-half3 GetIBLIrradiance(in half Roughness,in float3 R,in half x)
-{			
-    half3 sampleEnvSpecular=half3(0,0,0);
-    half MIP_ROUGHNESS=0.17;
-    half level=Roughness / MIP_ROUGHNESS;
-    half fSign= R.z > 0;
-    half fSign2 = fSign * 2 - 1;
-    R.xy /= (R.z * fSign2 + 1);
-    R.xy = R.xy * half2(0.25,-0.25) + 0.25 + 0.5 * fSign;				
-    half4 srcColor;								
-    srcColor = tex2Dlod (_EnvMap, half4(R.xy, 0, level));
-    return srcColor;
-}
+
 half3 IBL_Specular(in half Roughness,in float3 R, in half3 SpecularColor, in half4 GILighting)
 {
     half3 IBLSpecular = GetIBLIrradiance(Roughness, R);

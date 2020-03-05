@@ -211,6 +211,7 @@
 
 				float3 DirectLight2 = saturate(dot(normalize(normalVec + derNormal * 3), lightDir)).rrr;
 				DirectLight2 *= DirectLight2;
+
 				DirectLight2 *= shadow * SunColor2 * alpha * 20 * _EyeColor.xyz;
 
 				//virtualLight
@@ -228,7 +229,7 @@
 				//lighting
 				float3 lighting = GILighting.xyz + DirectLight + DirectLight2 + VirtualLight + VirtualLight2;
 
-
+				//return half4(lighting * 0.1,1);
 
 				//Specular
 

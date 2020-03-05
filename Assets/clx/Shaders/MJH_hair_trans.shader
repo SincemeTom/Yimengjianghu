@@ -260,6 +260,7 @@
 				float VdotL = saturate(dot(-viewDir, lightDir));
 				Color = ApplyFogColor(Color, i.worldPos.xyz, viewDir.xyz, VdotL, EnvInfo.z);
 				Color.xyz = Color.xyz / (Color.xyz * 0.9661836 + 0.180676);
+				//return half4(texBase.www,1);
 				// apply fog
 				UNITY_APPLY_FOG(i.fogCoord, col);
 				return half4 (Color,texBase.w);

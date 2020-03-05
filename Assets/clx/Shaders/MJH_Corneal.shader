@@ -17,17 +17,8 @@
 
 		EnvInfo ("EnvInfo", Vector) = (0,0.01,1,2.5)
 		
-		cEmissionScale ("cEmissionScale", Vector) = (1,1,1,1)
 		[HDR]cVirtualLitColor ("cVirtualLitColor", Color) = (1, 0.72, 0.65, 0)
 		cVirtualLitDir ("cVirtualLitDir", Vector) = (-0.5, 0.114 , 0.8576, 0.106)
-		[HDR]_EyeColor("_EyeColor", Color) = (0.1973174,0.1973174,0.1973174,1)
-		ColorScale("Color Scale", Vector) = (0.89, 0.89, 0.89, 0)
-		ColorBias("Color Bias", Vector) = (-0.001, -0.001, 0, 0)
-		FogInfo("Fog Info", Vector) = (70,0.008,-0.003160504,0.3555721)
-
-        FogColor("FogInfo", Color) = (0.2590002, 0.3290003, 0.623, 1.102886) 
-        FogColor2("FogInfo2", Color) = (0,0,0,0.7713518)
-        FogColor3("FogInfo3", Color) = (0.5, 0.35, 0.09500044, 0.6937419 )
 
 	}
 	SubShader
@@ -67,12 +58,10 @@
 			half NormalMapBias;
 			half4 cVirtualLitDir;
 			half4 cVirtualLitColor;
-			half4 cEmissionScale;
+
 			float cVirtualColorScale;
 			
-			float4 ColorScale;
-			float4 ColorBias;
-			float4 _EyeColor;
+
 
 
 			fixed4 frag (v2f i) : SV_Target

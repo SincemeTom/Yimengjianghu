@@ -10,14 +10,14 @@
 		NormalMapBias ("NormalMapBias ", Range(-1,1)) = -0.5
 		_DetailNormalTex("Detail Normal Map", 2D) = "black"
 		_DeailUVScale("Deail UV Scale", float) = 9
-		maokong_intensity("maokong intensity", float) = 1
+		maokong_intensity("Pore Intensity", float) = 1
 		_EnvMap ("Reflect", 2D) = "black" {}
 		_LutMap("Lut Map ", 2D) = "black" {}
 		_CrystalMapTex("Crystal Map", 2D) = "black"{}
 		_CrystalMask("Crystal Map Mask", 2D) = "black"{}
 
 		EnvStrength ("EnvStrength", Range(0,2)) = 1
-		_SSSColor("_SSSColor", Color) = (0.7,0.2,0.5,1)
+		_SSSColor("SSSColor", Color) = (0.7,0.2,0.5,1)
 		ShadowColor ("ShadowColor", Vector) = (0.1122132,0.3493512,0.00003981071,0.5)
 
 		EnvInfo ("EnvInfo", Vector) = (0,0.01,1,2.5)
@@ -194,12 +194,11 @@
 				float3 SSS_Lut2 = float3(lerp(sqrt(LutUV2.r), LutUV2.r, 1 - _SSSIntensity), LutUV2.rr);
 				SSS_Lut2.xyz *=SSS_Lut2.xyz;
 
-
 				//Diffuse
 				float3 SSS_SunIrradiance = lerp(SSS_Lut2.xyz * SSS_Lut1.xyz, NdotL * shadow, vertexColorw) * SunIrradiance * AO;
 
 				float3 DiffuseIrradiance = PointCloudIrradiance + RefractionIrradiance + VirtualLitIrradiance + SSS_SunIrradiance;
-
+//return half4(RefractionIrradiance,1);
 				//Specular
 				float RoughnessLayer1 = Roughness;
 				float RoughnessLayer2 = Roughness * _RoughnessOffset;

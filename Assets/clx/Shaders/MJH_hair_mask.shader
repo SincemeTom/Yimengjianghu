@@ -8,7 +8,7 @@
 		_MixTex ("Mix", 2D) = "white" {}
 		_NormalTex ("Normal", 2D) = "normal" {}
 		NormalMapBias ("NormalMapBias ", Range(-1,1)) = -0.5
-
+       _CutOff("CutOff", Range(0,1)) = 0.33
 		_EnvMap ("_EnvMap", 2D) = "black" {}
 
 		AliasingFactor ("AliasingFactor", Range(0,1)) = 0.2
@@ -21,9 +21,9 @@
 		[HDR]cVirtualLitColor ("cVirtualLitColor", Color) = (1, 0.72, 0.65, 0)
 		cVirtualLitDir ("cVirtualLitDir", Vector) = (-0.5, 0.114 , 0.8576, 0.106)
 
-		cRoughnessX("cRoughnessX", Range(0,1)) = 0.1
-		cRoughnessY("cRoughnessY", Range(0,1)) = 1
-		cAnisotropicScale("cAnisotropicScale", Range(0,10)) = 1
+		cRoughnessX("RoughnessX", Range(0,1)) = 0.1
+		cRoughnessY("RoughnessY", Range(0,1)) = 1
+		cAnisotropicScale("AnisotropicScale", Range(0,10)) = 1
 	}
 	SubShader
 	{
@@ -59,7 +59,7 @@
 			half _Metallic;
 
 			half AliasingFactor;
-
+			float _CutOff;
 			half BaseMapBias;
 			half NormalMapBias;
 			half4 cVirtualLitDir;
@@ -93,7 +93,7 @@
 				fixed4 texN = tex2Dbias (_NormalTex, half4(i.uv.xy, 0, NormalMapBias));
 				texN.y = 1 - texN.y;
 				half Alpha = texBase.w;
-
+				clip(Alpha - _CutOff);
 				
 				half AO = texM.z;
 				half SSSMask=0.0;
@@ -265,6 +265,7 @@
 				Color = ApplyFogColor(Color, i.worldPos.xyz, viewDir.xyz, VdotL, EnvInfo.z);
 
 				Color.xyz = Color.xyz / (Color.xyz * 0.9661836 + 0.180676);
+				//return half4(texBase.www,texBase.w);
 				// apply fog
 				UNITY_APPLY_FOG(i.fogCoord, col);
 				return half4 (Color,texBase.w);
